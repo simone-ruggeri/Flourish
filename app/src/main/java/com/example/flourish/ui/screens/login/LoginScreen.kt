@@ -31,6 +31,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.flourish.ui.components.CanvasWithIcon
+import com.example.flourish.ui.navigation.NavigationRoute
 
 @Composable
 fun LoginScreen(
@@ -58,7 +59,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Aggiungi il testo sotto la CanvasWithIcon
+
             Text(
                 text = "Welcome Back, please login to your account",
                 style = MaterialTheme.typography.titleMedium,
@@ -114,10 +115,10 @@ fun LoginScreen(
             ){
                 Text(text = "Login")
             }
-            Spacer(modifier = Modifier.height(96.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
             TextButton(
-                onClick = { /*TODO*/ }
+                onClick = { navController.navigate(NavigationRoute.SignUp.route) }
             ) {
                 val annotatedString = buildAnnotatedString {
                     // Prima parte del testo: "Don't have an account?"

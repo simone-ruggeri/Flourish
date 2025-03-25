@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.flourish.ui.screens.login.LoginScreen
+import com.example.flourish.ui.screens.signup.SignupScreen
 
 @Composable
 fun NavGraph(
@@ -20,5 +21,6 @@ fun NavGraph(
         modifier = modifier
     ) {
         composable(NavigationRoute.Login.route) { LoginScreen(navController = navController)}
+        composable(NavigationRoute.SignUp.route) { SignupScreen(navController = navController) }
     }
 }
