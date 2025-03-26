@@ -9,6 +9,7 @@ import com.example.flourish.ui.screens.homepage.HomepageScreen
 import com.example.flourish.ui.screens.login.LoginScreen
 import com.example.flourish.ui.screens.signup.SignupScreen
 import com.example.flourish.viewmodel.LoginViewModel
+import com.example.flourish.viewmodel.SignupViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -31,8 +32,10 @@ fun NavGraph(
             )
         }
         composable(NavigationRoute.SignUp.route) {
+            val signupViewModel: SignupViewModel = koinViewModel()
             SignupScreen(
-                navController = navController
+                navController = navController,
+                signupViewModel = signupViewModel
             )
         }
         composable(NavigationRoute.Homepage.route) {

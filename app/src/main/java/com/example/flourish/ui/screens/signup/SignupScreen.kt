@@ -13,11 +13,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,12 +35,18 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.flourish.ui.components.CanvasWithIcon
+import com.example.flourish.ui.components.ErrorMessage
 import com.example.flourish.ui.navigation.NavigationRoute
+import com.example.flourish.viewmodel.SignupViewModel
 
 @Composable
 fun SignupScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    signupViewModel: SignupViewModel
 ) {
+    val uiState by signupViewModel.registrationUiState.collectAsState()
+    val registrationState by signupViewModel.registrationState.collectAsState()
+
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
 
@@ -67,9 +77,10 @@ fun SignupScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             // First name Input
+            uiState.firstNameError?.let { ErrorMessage(text = it) }
             TextField(
-                value = "",
-                onValueChange = { "" },
+                value = uiState.firstName,
+                onValueChange = { signupViewModel.onFirstNameChanged(it) },
                 label = {
                     Text(
                         text = "First Name",
@@ -85,9 +96,10 @@ fun SignupScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Last name Input
+            uiState.lastNameError?.let { ErrorMessage(text = it) }
             TextField(
-                value = "",
-                onValueChange = { "" },
+                value = uiState.lastName,
+                onValueChange = { signupViewModel.onLastNameChanged(it) },
                 label = {
                     Text(
                         text = "Last Name",
@@ -103,9 +115,10 @@ fun SignupScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Email Input
+            uiState.emailError?.let { ErrorMessage(text = it) }
             TextField(
-                value = "",
-                onValueChange = { "" },
+                value = uiState.email,
+                onValueChange = { signupViewModel.onEmailChanged(it) },
                 label = {
                     Text(
                         text = "Email",
@@ -121,9 +134,10 @@ fun SignupScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Password Input
+            uiState.passwordError?.let { ErrorMessage(text = it) }
             TextField(
-                value = "",
-                onValueChange = { "" },
+                value = uiState.password,
+                onValueChange = { signupViewModel.onPasswordChanged(it) },
                 label = {
                     Text(
                         text = "Password",
@@ -139,16 +153,37 @@ fun SignupScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    signupViewModel.registerUser()
+                    focusManager.clearFocus()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
+                enabled = !uiState.isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF4F3422),
                     contentColor = Color.White
                 )
             ){
-                Text(text = "Sign up")
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp)
+                } else {
+                    Text(
+                        text = "Sign up",
+                        color = Color.White
+                    )
+                }
+            }
+
+            // Error Message
+            uiState.errorMessage?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
             }
             Spacer(modifier = Modifier.height(64.dp))
 
@@ -169,6 +204,17 @@ fun SignupScreen(
                     text = annotatedString,
                     style = MaterialTheme.typography.bodyMedium
                 )
+            }
+        }
+
+        LaunchedEffect(registrationState) {
+            registrationState?.let {
+                if (it.isSuccess && it.getOrNull() != null) {
+                    // Esegui la navigazione se il login è riuscito
+                    navController.navigate(NavigationRoute.Login.route) {
+                        popUpTo(NavigationRoute.SignUp.route) { inclusive = true }
+                    }
+                }
             }
         }
     }
