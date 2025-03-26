@@ -1,10 +1,14 @@
 package com.example.flourish.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.flourish.data.preferences.UserPreferences
 import com.example.flourish.ui.screens.homepage.HomepageScreen
 import com.example.flourish.ui.screens.login.LoginScreen
 import com.example.flourish.ui.screens.signup.SignupScreen
@@ -15,9 +19,25 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun NavGraph(
     navController: NavHostController,
+    userPreferences: UserPreferences,
     modifier: Modifier = Modifier
 ) {
-    val startDestination = NavigationRoute.Login.route
+    // Stato per il userId, inizializzato con un valore di default
+    val userIdState = remember { mutableStateOf<Long?>(-1L) }
+
+    // Effetto per raccogliere i dati dal flusso userIdFlow
+    LaunchedEffect(Unit) {
+        userPreferences.userIdFlow.collect { userId ->
+            userIdState.value = userId
+        }
+    }
+
+    // Mappa la schermata da mostrare in base al valore di userId
+    val startDestination = if (userIdState.value == null || userIdState.value == -1L) {
+        NavigationRoute.Login.route
+    } else {
+        NavigationRoute.Homepage.route
+    }
 
     NavHost(
         navController = navController,

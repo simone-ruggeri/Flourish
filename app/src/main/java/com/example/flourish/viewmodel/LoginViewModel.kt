@@ -3,6 +3,7 @@ package com.example.flourish.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flourish.data.model.User
+import com.example.flourish.data.preferences.UserPreferences
 import com.example.flourish.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,8 @@ data class LoginUiState(
 )
 
 class LoginViewModel(
-    private val repository: UserRepository
+    private val repository: UserRepository,
+    private val userPreferences: UserPreferences
 ) : ViewModel() {
     private val _loginUiState = MutableStateFlow(LoginUiState())
     val loginUiState: StateFlow<LoginUiState> = _loginUiState
@@ -51,6 +53,11 @@ class LoginViewModel(
         viewModelScope.launch {
             val result = repository.loginUser(state.email, state.password)
             if (result.isSuccess && result.getOrNull() != null) {
+
+                // Salva lo userId in UserPreferences
+                val user = result.getOrNull()!!
+                userPreferences.saveUserId(user.id)
+
                 _loginState.value = Result.success(result.getOrNull())
                 _loginUiState.value = state.copy(
                     isLoading = false,

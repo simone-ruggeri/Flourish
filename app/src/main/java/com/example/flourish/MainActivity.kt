@@ -13,10 +13,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.example.flourish.data.preferences.UserPreferences
 import com.example.flourish.ui.navigation.NavGraph
 import com.example.flourish.ui.theme.FlourishTheme
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
+    private val userPreferences: UserPreferences by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -27,8 +31,12 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    Scaffold {contentPadding ->
-                        NavGraph(navController = navController, modifier = Modifier.padding(contentPadding))
+                    Scaffold { contentPadding ->
+                        NavGraph(
+                            navController = navController,
+                            userPreferences = userPreferences,
+                            modifier = Modifier.padding(contentPadding)
+                        )
                     }
                 }
             }

@@ -2,6 +2,7 @@ package com.example.flourish
 
 import androidx.room.Room
 import com.example.flourish.data.database.AppDatabase
+import com.example.flourish.data.preferences.UserPreferences
 import com.example.flourish.data.repository.UserRepository
 import com.example.flourish.viewmodel.LoginViewModel
 import com.example.flourish.viewmodel.SignupViewModel
@@ -26,7 +27,10 @@ val appModule = module {
     // Repository
     single { UserRepository(get()) }
 
+    //UserPreferences
+    single { UserPreferences(get()) }
+
     //ViewModel
-    viewModel { LoginViewModel(get()) }
+    viewModel { LoginViewModel(get(), get()) }
     viewModel { SignupViewModel(get())}
 }
