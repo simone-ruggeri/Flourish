@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.flourish.data.preferences.UserPreferences
 import com.example.flourish.ui.screens.homepage.HomepageScreen
+import com.example.flourish.ui.screens.login.LoadingScreen
 import com.example.flourish.ui.screens.login.LoginScreen
 import com.example.flourish.ui.screens.signup.SignupScreen
 import com.example.flourish.viewmodel.LoginViewModel
@@ -30,6 +31,13 @@ fun NavGraph(
         userPreferences.userIdFlow.collect { userId ->
             userIdState.value = userId
         }
+    }
+
+    // Mostra LoadingScreen finché non riceviamo un valore valido per userId
+    if (userIdState.value == -1L) {
+        // Mostra la schermata di caricamento finché userId non è stato ricevuto
+        LoadingScreen()
+        return
     }
 
     // Mappa la schermata da mostrare in base al valore di userId
