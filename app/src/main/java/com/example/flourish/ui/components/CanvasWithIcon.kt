@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +19,7 @@ import com.example.flourish.R
 
 @Composable
 fun CanvasWithIcon() {
+    val backgroundColor = MaterialTheme.colorScheme.onBackground
     Box(contentAlignment = Alignment.Center) {
         // Canvas con sfondo curvo
         Canvas(
@@ -51,7 +53,7 @@ fun CanvasWithIcon() {
             }
 
             // Disegna il percorso sul canvas con il colore verde
-            drawPath(path, color = Color(0xFF94A467))
+            drawPath(path, color = backgroundColor)
         }
 
         // Icona posizionata sopra la curva

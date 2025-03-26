@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -53,7 +54,7 @@ fun SignupScreen(
     Box (
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFf7f4f2))
+            .background(MaterialTheme.colorScheme.background)
             .clickable(
                 // Rimuove il focus (e nasconde la tastiera) quando si clicca all'esterno
                 interactionSource = remember { MutableInteractionSource() },
@@ -72,7 +73,7 @@ fun SignupScreen(
             Text(
                 text = "Create a new account",
                 style = MaterialTheme.typography.titleMedium,
-                color = Color(0xFF4F3422)
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(48.dp))
 
@@ -81,17 +82,17 @@ fun SignupScreen(
             TextField(
                 value = uiState.firstName,
                 onValueChange = { signupViewModel.onFirstNameChanged(it) },
-                label = {
-                    Text(
-                        text = "First Name",
-                        color = Color(0xFF4F3422)
-                    )
-                },
+                label = { Text(text = "First Name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .focusRequester(focusRequester),
-                //colors =
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -100,17 +101,17 @@ fun SignupScreen(
             TextField(
                 value = uiState.lastName,
                 onValueChange = { signupViewModel.onLastNameChanged(it) },
-                label = {
-                    Text(
-                        text = "Last Name",
-                        color = Color(0xFF4F3422)
-                    )
-                },
+                label = { Text(text = "Last Name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .focusRequester(focusRequester),
-                //colors =
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -119,17 +120,17 @@ fun SignupScreen(
             TextField(
                 value = uiState.email,
                 onValueChange = { signupViewModel.onEmailChanged(it) },
-                label = {
-                    Text(
-                        text = "Email",
-                        color = Color(0xFF4F3422)
-                    )
-                },
+                label = { Text(text = "Email") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .focusRequester(focusRequester),
-                //colors =
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -138,17 +139,17 @@ fun SignupScreen(
             TextField(
                 value = uiState.password,
                 onValueChange = { signupViewModel.onPasswordChanged(it) },
-                label = {
-                    Text(
-                        text = "Password",
-                        color = Color(0xFF4F3422)
-                    )
-                },
+                label = { Text(text = "Password") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .focusRequester(focusRequester),
-                //colors =
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -162,17 +163,14 @@ fun SignupScreen(
                     .padding(horizontal = 16.dp),
                 enabled = !uiState.isLoading,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4F3422),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ){
                 if (uiState.isLoading) {
-                    CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp)
+                    CircularProgressIndicator(strokeWidth = 2.dp)
                 } else {
-                    Text(
-                        text = "Sign up",
-                        color = Color.White
-                    )
+                    Text(text = "Sign up")
                 }
             }
 
@@ -192,11 +190,11 @@ fun SignupScreen(
             ) {
                 val annotatedString = buildAnnotatedString {
                     // Prima parte del testo: "Don't have an account?"
-                    withStyle(style = SpanStyle(color = Color(0xFF4F3422))) {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
                         append("Already have an account? ")
                     }
                     // Seconda parte del testo: "Sign Up" con colore diverso e come link
-                    withStyle(style = SpanStyle(color = Color(0xFFED7E1C))) {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
                         append("Login")
                     }
                 }

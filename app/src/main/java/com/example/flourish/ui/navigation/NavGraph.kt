@@ -34,22 +34,22 @@ fun NavGraph(
     }
 
     // Mostra LoadingScreen finché non riceviamo un valore valido per userId
-    if (userIdState.value == -1L) {
-        // Mostra la schermata di caricamento finché userId non è stato ricevuto
-        LoadingScreen()
-        return
-    }
-
-    // Mappa la schermata da mostrare in base al valore di userId
-    val startDestination = if (userIdState.value == null || userIdState.value == -1L) {
-        NavigationRoute.Login.route
-    } else {
-        NavigationRoute.Homepage.route
-    }
+//    if (userIdState.value == -1L) {
+//        // Mostra la schermata di caricamento finché userId non è stato ricevuto
+//        LoadingScreen()
+//        return
+//    }
+//
+//    // Mappa la schermata da mostrare in base al valore di userId
+//    val startDestination = if (userIdState.value == null || userIdState.value == -1L) {
+//        NavigationRoute.Login.route
+//    } else {
+//        NavigationRoute.Homepage.route
+//    }
 
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = NavigationRoute.Login.route,
         modifier = modifier
     ) {
         composable(NavigationRoute.Login.route) {

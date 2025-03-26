@@ -24,7 +24,7 @@ fun LoadingScreen() {
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFf7f4f2))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally, // Centra orizzontalmente
@@ -32,14 +32,14 @@ fun LoadingScreen() {
             modifier = Modifier.fillMaxSize()
         ) {
             CircularProgressIndicator(
-                color = Color(0xFF4F3422), // Colore dell'indicatore (puoi personalizzarlo)
+                color = MaterialTheme.colorScheme.primary, // Colore dell'indicatore (puoi personalizzarlo)
                 modifier = Modifier.size(80.dp) // Imposta la dimensione del CircularProgressIndicator
             )
             Spacer(modifier = Modifier.height(16.dp)) // Distanza tra il CircularProgressIndicator e la scritta
             Text(
                 text = "Loading...", // Testo da visualizzare
                 style = MaterialTheme.typography.bodyLarge, // Puoi personalizzare lo stile del testo
-                color = Color(0xFF4F3422) // Colore del testo, generalmente bianco o nero
+                color = MaterialTheme.colorScheme.primary // Colore del testo, generalmente bianco o nero
             )
         }
     }

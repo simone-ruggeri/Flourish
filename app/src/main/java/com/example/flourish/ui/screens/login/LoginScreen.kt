@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,10 +51,10 @@ fun LoginScreen(
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
 
-    Box (
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFf7f4f2))
+            .background(MaterialTheme.colorScheme.background)
             .clickable(
                 // Rimuove il focus (e nasconde la tastiera) quando si clicca all'esterno
                 interactionSource = remember { MutableInteractionSource() },
@@ -73,7 +74,7 @@ fun LoginScreen(
             Text(
                 text = "Welcome Back, please login to your account",
                 style = MaterialTheme.typography.titleMedium,
-                color = Color(0xFF4F3422)
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(48.dp))
 
@@ -82,17 +83,17 @@ fun LoginScreen(
             TextField(
                 value = uiState.email,
                 onValueChange = { loginViewModel.onEmailChanghed(it) },
-                label = {
-                    Text(
-                        text = "Email",
-                        color = Color(0xFF4F3422)
-                    )
-                },
+                label = { Text(text = "Email") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .focusRequester(focusRequester),
-                //colors =
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -101,17 +102,17 @@ fun LoginScreen(
             TextField(
                 value = uiState.password,
                 onValueChange = { loginViewModel.onPasswordChanged(it) },
-                label = {
-                    Text(
-                        text = "Password",
-                        color = Color(0xFF4F3422)
-                    )
-                },
+                label = { Text(text = "Password") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .focusRequester(focusRequester),
-                //colors =
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -125,17 +126,14 @@ fun LoginScreen(
                     .padding(horizontal = 16.dp),
                 enabled = !uiState.isLoading,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF4F3422),
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 )
-            ){
+            ) {
                 if (uiState.isLoading) {
-                    CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp)
+                    CircularProgressIndicator(strokeWidth = 2.dp)
                 } else {
-                    Text(
-                        text = "Login",
-                        color = Color.White
-                    )
+                    Text(text = "Login")
                 }
             }
 
@@ -155,12 +153,13 @@ fun LoginScreen(
                 onClick = { navController.navigate(NavigationRoute.SignUp.route) }
             ) {
                 val annotatedString = buildAnnotatedString {
+
                     // Prima parte del testo: "Don't have an account?"
-                    withStyle(style = SpanStyle(color = Color(0xFF4F3422))) {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
                         append("Don't have an account? ")
                     }
                     // Seconda parte del testo: "Sign Up" con colore diverso e come link
-                    withStyle(style = SpanStyle(color = Color(0xFFED7E1C))) {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
                         append("Sign Up")
                     }
                 }
