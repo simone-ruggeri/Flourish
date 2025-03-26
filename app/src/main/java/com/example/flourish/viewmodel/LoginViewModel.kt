@@ -1,10 +1,12 @@
 package com.example.flourish.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.flourish.data.model.User
 import com.example.flourish.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 data class LoginUiState(
     val email: String = "",
@@ -43,6 +45,24 @@ class LoginViewModel(
         }
         if (state.password.isBlank()) {
             _loginUiState.value = state.copy(passwordError = "Password cannot be empty")
+        }
+        _loginUiState.value = state.copy(isLoading = true, errorMessage = null)
+
+        viewModelScope.launch {
+            val result = repository.loginUser(state.email, state.password)
+            if (result.isSuccess && result.getOrNull() != null) {
+                _loginState.value = Result.success(result.getOrNull())
+                _loginUiState.value = state.copy(
+                    isLoading = false,
+                    errorMessage = null
+                )
+            } else {
+                _loginState.value = result
+                _loginUiState.value =state.copy(
+                    isLoading = false,
+                    errorMessage = "Invalid Credentials"
+                )
+            }
         }
     }
 }
