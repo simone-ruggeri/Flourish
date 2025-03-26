@@ -18,6 +18,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,12 +33,17 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.flourish.ui.components.CanvasWithIcon
+import com.example.flourish.ui.components.ErrorMessage
 import com.example.flourish.ui.navigation.NavigationRoute
+import com.example.flourish.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    loginViewModel: LoginViewModel
 ) {
+    val uiState by loginViewModel.loginUiState.collectAsState()
+
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
 
@@ -68,9 +75,10 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             // Email Input
+            uiState.emailError?.let { ErrorMessage(text = it) }
             TextField(
-                value = "",
-                onValueChange = { "" },
+                value = uiState.email,
+                onValueChange = { loginViewModel.onEmailChanghed(it) },
                 label = {
                     Text(
                         text = "Email",
@@ -86,9 +94,10 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Password Input
+            uiState.passwordError?.let { ErrorMessage(text = it) }
             TextField(
-                value = "",
-                onValueChange = { "" },
+                value = uiState.password,
+                onValueChange = { loginViewModel.onPasswordChanged(it) },
                 label = {
                     Text(
                         text = "Password",
@@ -104,7 +113,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = { /*TODO*/ },
+                onClick = { loginViewModel.loginUser() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
@@ -115,6 +124,17 @@ fun LoginScreen(
             ){
                 Text(text = "Login")
             }
+
+            // Error Message
+            uiState.errorMessage?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.height(64.dp))
 
             TextButton(

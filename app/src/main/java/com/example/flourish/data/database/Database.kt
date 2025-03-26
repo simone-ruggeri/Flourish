@@ -8,7 +8,7 @@ import com.example.flourish.data.model.User
     entities = [
         User::class
     ],
-    version = 0
+    version = 1
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
