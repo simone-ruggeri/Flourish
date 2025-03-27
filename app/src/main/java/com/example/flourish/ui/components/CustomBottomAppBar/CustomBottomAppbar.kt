@@ -3,6 +3,7 @@ package com.example.flourish.ui.components.CustomBottomAppBar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
@@ -22,10 +23,10 @@ fun CustomBottomAppBar(
 ) {
     BottomAppBar(
         containerColor = MaterialTheme.colorScheme.secondaryContainer,
-        tonalElevation = 8.dp
+        tonalElevation = 0.dp
     ) {
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
