@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.flourish.data.preferences.UserPreferences
+import com.example.flourish.ui.components.CustomBottomAppBar.BottomAppBarHandler
 import com.example.flourish.ui.navigation.NavGraph
 import com.example.flourish.ui.theme.FlourishTheme
 import org.koin.android.ext.android.inject
@@ -31,7 +32,9 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    Scaffold { contentPadding ->
+                    Scaffold(
+                        bottomBar ={ BottomAppBarHandler(navController = navController) }
+                    ) { contentPadding ->
                         NavGraph(
                             navController = navController,
                             userPreferences = userPreferences,
