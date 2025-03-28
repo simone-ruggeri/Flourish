@@ -12,6 +12,7 @@ import com.example.flourish.data.preferences.UserPreferences
 import com.example.flourish.ui.screens.homepage.HomepageScreen
 import com.example.flourish.ui.screens.login.LoadingScreen
 import com.example.flourish.ui.screens.login.LoginScreen
+import com.example.flourish.ui.screens.mood.MoodScreen
 import com.example.flourish.ui.screens.signup.SignupScreen
 import com.example.flourish.ui.screens.sleep.SleepScreen
 import com.example.flourish.viewmodel.LoginViewModel
@@ -74,6 +75,11 @@ fun NavGraph(
         }
         composable(NavigationRoute.Sleep.route) {
             SleepScreen(
+                navController = navController
+            )
+        }
+        composable(NavigationRoute.Mood.route) {
+            MoodScreen(
                 navController = navController
             )
         }

@@ -1,6 +1,5 @@
-package com.example.flourish.ui.screens.sleep
+package com.example.flourish.ui.screens.mood
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,11 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,7 +32,7 @@ import com.example.flourish.R
 import com.example.flourish.ui.navigation.NavigationRoute
 
 @Composable
-fun SleepScreen(
+fun MoodScreen(
     navController: NavHostController
 ) {
     // State per tracciare l'icona selezionata
@@ -44,11 +40,11 @@ fun SleepScreen(
 
     // Lista di tutte le icone con il relativo messaggio
     val moodIcons = listOf(
-        R.drawable.mood_depressed to "2-4 hours",
-        R.drawable.mood_sad to "4-5 hours",
-        R.drawable.mood_neutral to "5-6 hours",
-        R.drawable.mood_happy to "6-7 hours",
-        R.drawable.mood_overjoyed to "7-9 hours"
+        R.drawable.mood_depressed to "Very Bad",
+        R.drawable.mood_sad to "Bad",
+        R.drawable.mood_neutral to "Neutral",
+        R.drawable.mood_happy to "Well",
+        R.drawable.mood_overjoyed to "Excellent"
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -60,7 +56,7 @@ fun SleepScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "How would you rate your sleep quality?",
+                text = "How would you describe your mood?",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
@@ -74,7 +70,7 @@ fun SleepScreen(
                     .size(240.dp),
                 contentAlignment = Alignment.Center
             ) {
-                selectedMood.value?.let { (icon, description) ->
+                selectedMood.value?.let { (icon) ->
                     // Mostra l'icona selezionata
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
@@ -83,26 +79,6 @@ fun SleepScreen(
                             modifier = Modifier.size(180.dp),
                             tint = Color.Unspecified
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Timer, 
-                                contentDescription = "timer-icon",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = description,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Bold
-                            )   
-                        }
                     }
                 }
             }

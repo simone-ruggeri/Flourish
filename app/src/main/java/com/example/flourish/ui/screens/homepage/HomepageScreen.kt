@@ -37,10 +37,9 @@ fun HomepageScreen(
             .padding(horizontal = 16.dp)
             .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp) // Spaziatura uniforme tra gli elementi
     ) {
         item {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         item {
@@ -51,6 +50,7 @@ fun HomepageScreen(
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold
             )
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         item {
@@ -58,19 +58,22 @@ fun HomepageScreen(
         }
 
         item {
+            Spacer(modifier = Modifier.height(16.dp))
             Icon(
                 painter = painterResource(id = R.drawable.plant_example),
                 contentDescription = "week-calendar-icon",
                 modifier = Modifier.size(192.dp),
                 tint = Color.Unspecified
             )
-        }
-
-        item {
             Spacer(modifier = Modifier.height(16.dp))
         }
 
         item {
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,12 +125,14 @@ fun HomepageScreen(
         }
 
         item {
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Your plant needs at least 40 drops of water per week to survive, but 50 drops will help it grow to the next stage. Complete tasks to earn drops!",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.tertiary
             )
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         item {
