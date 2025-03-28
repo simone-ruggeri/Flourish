@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.flourish.R
+import com.example.flourish.ui.navigation.NavigationRoute
 
 @Composable
 fun CustomBottomAppBar(
@@ -30,7 +31,7 @@ fun CustomBottomAppBar(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { navController.navigate(NavigationRoute.Homepage.route) }) {
                 Icon(
                     painter = painterResource(id = R.drawable.bottom_app_bar_plant),
                     contentDescription = "plant",
@@ -38,7 +39,7 @@ fun CustomBottomAppBar(
                     tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { navController.navigate(NavigationRoute.Sleep.route) }) {
                 Icon(
                     painter = painterResource(id = R.drawable.bottom_app_bar_emoji),
                     contentDescription = "emoji",

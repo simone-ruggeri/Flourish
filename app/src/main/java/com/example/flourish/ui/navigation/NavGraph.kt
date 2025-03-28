@@ -13,6 +13,7 @@ import com.example.flourish.ui.screens.homepage.HomepageScreen
 import com.example.flourish.ui.screens.login.LoadingScreen
 import com.example.flourish.ui.screens.login.LoginScreen
 import com.example.flourish.ui.screens.signup.SignupScreen
+import com.example.flourish.ui.screens.sleep.SleepScreen
 import com.example.flourish.viewmodel.LoginViewModel
 import com.example.flourish.viewmodel.SignupViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -68,6 +69,11 @@ fun NavGraph(
         }
         composable(NavigationRoute.Homepage.route) {
             HomepageScreen(
+                navController = navController
+            )
+        }
+        composable(NavigationRoute.Sleep.route) {
+            SleepScreen(
                 navController = navController
             )
         }

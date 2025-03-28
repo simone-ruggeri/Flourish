@@ -13,7 +13,8 @@ fun BottomAppBarHandler(
     val currentRoute = backStackEntry?.destination?.route
 
     when{
-        currentRoute == NavigationRoute.Homepage.route -> {
+        currentRoute == NavigationRoute.Homepage.route ||
+        currentRoute == NavigationRoute.Sleep.route -> {
             CustomBottomAppBar(navController = navController)
         }
     }
