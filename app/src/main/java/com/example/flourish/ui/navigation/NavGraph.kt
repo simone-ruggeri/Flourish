@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.flourish.data.preferences.UserPreferences
+import com.example.flourish.ui.screens.calendar.CalendarScreen
 import com.example.flourish.ui.screens.homepage.HomepageScreen
 import com.example.flourish.ui.screens.login.LoadingScreen
 import com.example.flourish.ui.screens.login.LoginScreen
@@ -82,6 +83,9 @@ fun NavGraph(
             MoodScreen(
                 navController = navController
             )
+        }
+        composable(NavigationRoute.Calendar.route) {
+            CalendarScreen()
         }
     }
 }

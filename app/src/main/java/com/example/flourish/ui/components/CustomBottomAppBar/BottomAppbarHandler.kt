@@ -15,7 +15,8 @@ fun BottomAppBarHandler(
     when{
         currentRoute == NavigationRoute.Homepage.route ||
         currentRoute == NavigationRoute.Sleep.route ||
-        currentRoute == NavigationRoute.Mood.route -> {
+        currentRoute == NavigationRoute.Mood.route ||
+        currentRoute == NavigationRoute.Calendar.route -> {
             CustomBottomAppBar(navController = navController)
         }
     }

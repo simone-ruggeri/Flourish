@@ -6,4 +6,5 @@ sealed class NavigationRoute (val route: String) {
     object Homepage: NavigationRoute ("homepage")
     object Sleep: NavigationRoute("sleep")
     object Mood: NavigationRoute("mood")
+    object Calendar: NavigationRoute("calendar")
 }
