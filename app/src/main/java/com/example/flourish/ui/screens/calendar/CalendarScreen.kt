@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.flourish.ui.components.WeeklyCalendar
 import com.example.flourish.R
+import com.example.flourish.ui.components.ActivityCard
 
 @Composable
 fun CalendarScreen() {
@@ -52,6 +53,15 @@ fun CalendarScreen() {
             Spacer(modifier = Modifier.height(24.dp))
 
             WeeklyCalendar()
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            ActivityCard(
+                iconActivity = R.drawable.activity_meditation,
+                activityName = "Meditation",
+                minutes = 30,
+                waterDrops = 4
+            )
         }
 
         ExtendedFloatingActionButton(
