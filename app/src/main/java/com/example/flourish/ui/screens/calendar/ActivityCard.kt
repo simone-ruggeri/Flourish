@@ -1,4 +1,4 @@
-package com.example.flourish.ui.components
+package com.example.flourish.ui.screens.calendar
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

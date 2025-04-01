@@ -55,7 +55,7 @@ fun CustomBottomAppBar(
                     tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { navController.navigate(NavigationRoute.Exercises.route) }) {
                 Icon(
                     painter = painterResource(id = R.drawable.bottom_app_bar_mindfulness),
                     contentDescription = "mindfulness",

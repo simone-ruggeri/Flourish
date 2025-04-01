@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.flourish.data.preferences.UserPreferences
 import com.example.flourish.ui.screens.calendar.CalendarScreen
+import com.example.flourish.ui.screens.exercises.ExercisesScreen
 import com.example.flourish.ui.screens.homepage.HomepageScreen
 import com.example.flourish.ui.screens.login.LoadingScreen
 import com.example.flourish.ui.screens.login.LoginScreen
@@ -86,6 +87,11 @@ fun NavGraph(
         }
         composable(NavigationRoute.Calendar.route) {
             CalendarScreen()
+        }
+        composable(NavigationRoute.Exercises.route) {
+            ExercisesScreen(
+                navController = navController
+            )
         }
     }
 }

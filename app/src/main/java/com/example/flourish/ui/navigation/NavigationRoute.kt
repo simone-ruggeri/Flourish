@@ -7,4 +7,7 @@ sealed class NavigationRoute (val route: String) {
     object Sleep: NavigationRoute("sleep")
     object Mood: NavigationRoute("mood")
     object Calendar: NavigationRoute("calendar")
+    object Exercises: NavigationRoute("exercises")
+    object Breathing: NavigationRoute("breathing")
+    object Meditation: NavigationRoute("meditation")
 }
