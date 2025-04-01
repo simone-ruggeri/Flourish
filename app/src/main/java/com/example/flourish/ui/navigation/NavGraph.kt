@@ -9,15 +9,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.flourish.data.preferences.UserPreferences
+import com.example.flourish.ui.screens.breathing.BreathingScreen
 import com.example.flourish.ui.screens.calendar.CalendarScreen
 import com.example.flourish.ui.screens.exercises.ExercisesScreen
 import com.example.flourish.ui.screens.homepage.HomepageScreen
 import com.example.flourish.ui.screens.login.LoadingScreen
 import com.example.flourish.ui.screens.login.LoginScreen
+import com.example.flourish.ui.screens.meditation.MeditationScreen
 import com.example.flourish.ui.screens.mood.MoodScreen
+import com.example.flourish.ui.screens.profile.ProfileScreen
 import com.example.flourish.ui.screens.signup.SignupScreen
 import com.example.flourish.ui.screens.sleep.SleepScreen
 import com.example.flourish.viewmodel.LoginViewModel
+import com.example.flourish.viewmodel.ProfileViewModel
 import com.example.flourish.viewmodel.SignupViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -91,6 +95,19 @@ fun NavGraph(
         composable(NavigationRoute.Exercises.route) {
             ExercisesScreen(
                 navController = navController
+            )
+        }
+        composable(NavigationRoute.Breathing.route) {
+            BreathingScreen()
+        }
+        composable(NavigationRoute.Meditation.route) {
+            MeditationScreen()
+        }
+        composable(NavigationRoute.Profile.route) {
+            val profileViewModel: ProfileViewModel = koinViewModel()
+            ProfileScreen(
+                navController = navController,
+                profileViewModel = profileViewModel
             )
         }
     }

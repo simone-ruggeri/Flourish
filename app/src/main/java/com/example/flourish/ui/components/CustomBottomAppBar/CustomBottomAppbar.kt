@@ -71,7 +71,7 @@ fun CustomBottomAppBar(
                     tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { navController.navigate(NavigationRoute.Profile.route) }) {
                 Icon(
                     painter = painterResource(id = R.drawable.bottom_app_bar_profile),
                     contentDescription = "profile",

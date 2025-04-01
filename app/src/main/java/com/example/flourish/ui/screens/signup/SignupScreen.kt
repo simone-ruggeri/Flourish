@@ -28,14 +28,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.flourish.ui.components.CanvasWithIcon
+import com.example.flourish.ui.components.Semicircle
 import com.example.flourish.ui.components.ErrorMessage
 import com.example.flourish.ui.navigation.NavigationRoute
 import com.example.flourish.viewmodel.SignupViewModel
@@ -61,7 +60,7 @@ fun SignupScreen(
                 indication = null
             ) { focusManager.clearFocus() }
     ) {
-        CanvasWithIcon()
+        Semicircle()
 
         Column(
             modifier = Modifier

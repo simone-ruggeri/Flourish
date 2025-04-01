@@ -18,7 +18,9 @@ import androidx.compose.ui.unit.dp
 import com.example.flourish.R
 
 @Composable
-fun CanvasWithIcon() {
+fun Semicircle(
+    showIcon: Boolean ? = true
+) {
     val backgroundColor = MaterialTheme.colorScheme.onBackground
     Box(contentAlignment = Alignment.Center) {
         // Canvas con sfondo curvo
@@ -56,15 +58,17 @@ fun CanvasWithIcon() {
             drawPath(path, color = backgroundColor)
         }
 
-        // Icona posizionata sopra la curva
-        Icon(
-            painter = painterResource(id = R.drawable.login_plant),
-            contentDescription = "Plant",
-            modifier = Modifier
-                .size(64.dp)
-                .align(Alignment.TopCenter)
-                .offset(y = 80.dp),
-            tint = Color.White
-        )
+        if (showIcon == true) {
+            // Icona posizionata sopra la curva
+            Icon(
+                painter = painterResource(id = R.drawable.login_plant),
+                contentDescription = "Plant",
+                modifier = Modifier
+                    .size(64.dp)
+                    .align(Alignment.TopCenter)
+                    .offset(y = 80.dp),
+                tint = Color.White
+            )
+        }
     }
 }
