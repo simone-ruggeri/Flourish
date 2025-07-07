@@ -1,5 +1,10 @@
 package com.example.flourish.ui.screens.profile
 
+import android.Manifest
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,26 +22,38 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.example.flourish.ui.components.Semicircle
 import com.example.flourish.R
+import com.example.flourish.ui.components.rememberCameraLauncher
 import com.example.flourish.ui.navigation.NavigationRoute
+import com.example.flourish.utils.loadBitmapFromUri
+import com.example.flourish.utils.rememberPermission
+import com.example.flourish.utils.saveImageToInternalStorage
 import com.example.flourish.viewmodel.ProfileViewModel
 
 @Composable
@@ -45,6 +62,11 @@ fun ProfileScreen(
     profileViewModel: ProfileViewModel
 ) {
     val logoutState by profileViewModel.logoutEvent.collectAsState()
+    val user by profileViewModel.profileState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        profileViewModel.loadUser()
+    }
 
     // Se logoutState diventa true, esegui la navigazione alla schermata di login
     LaunchedEffect(logoutState) {
@@ -52,6 +74,43 @@ fun ProfileScreen(
             navController.navigate(NavigationRoute.Login.route) {
                 // Rimuove la schermata di profilo dallo stack
                 popUpTo(NavigationRoute.Profile.route) { inclusive = true }
+            }
+        }
+    }
+
+    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+
+    val cameraLauncher = rememberCameraLauncher { imageUri ->
+        val bitmap = loadBitmapFromUri(context, imageUri)
+        bitmap?.let { bmp ->
+            val timestamp = System.currentTimeMillis()
+            val imagePath = saveImageToInternalStorage(context, bmp, "profile_image_${user.id}_$timestamp.jpg")
+            imagePath?.let { path ->
+                profileViewModel.updateProfileImage(path) // Aggiorna il database
+            }
+        }
+    }
+
+    val cameraPermission = rememberPermission(Manifest.permission.CAMERA) { status ->
+        if (status.isGranted) {
+            cameraLauncher.captureImage()
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val bitmap = loadBitmapFromUri(context, it)
+            bitmap?.let { bmp ->
+                val timestamp = System.currentTimeMillis()
+                val imagePath = saveImageToInternalStorage(context, bmp, "profile_image_${user.id}_$timestamp.jpg")
+                imagePath?.let { path ->
+                    profileViewModel.updateProfileImage(path) // Aggiorna il database
+                }
             }
         }
     }
@@ -70,15 +129,20 @@ fun ProfileScreen(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.profile_picture),
+                painter = if (user.profileImageUri.isNotBlank()) {
+                    rememberAsyncImagePainter(user.profileImageUri)
+                } else {
+                    painterResource(id = R.drawable.profile_picture_default)
+                },
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(140.dp)
                     .clip(CircleShape)
-                    .border(4.dp, Color.White, CircleShape)
+                    .border(4.dp, Color.White, CircleShape),
+                contentScale = ContentScale.Crop
             )
             IconButton(
-                onClick = { /* TODO */ },
+                onClick = { showDialog = true },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .offset(y = 15.dp)
@@ -105,12 +169,12 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(72.dp))
             InfoCard(
                 leadingIcon = R.drawable.bottom_app_bar_profile,
-                title = "Lucia Neri"
+                title = user.name
             )
             Spacer(modifier = Modifier.height(16.dp))
             InfoCard(
                 leadingIcon = R.drawable.profile_email,
-                title = "lucia.neri@gmail.it"
+                title = user.email
             )
         }
 
@@ -144,6 +208,62 @@ fun ProfileScreen(
                     )
                 }
             }
+        }
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = {
+                    Text(
+                        text = "Change Profile Image",
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
+                text = {
+                    Column {
+                        TextButton(onClick = {
+                            if (cameraPermission.status.isGranted) {
+                                cameraLauncher.captureImage()
+                            } else {
+                                cameraPermission.launchPermissionRequest()
+                            }
+                            showDialog = false
+                        }) {
+                            Text(
+                                text = "Take a Photo",
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        TextButton(onClick = {
+                            pickImageLauncher.launch("image/*")
+                            showDialog = false
+                        }) {
+                            Text(
+                                text = "Choose from Gallery",
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        TextButton(onClick = {
+                            profileViewModel.removeProfileImage()
+                            showDialog = false
+                        }) {
+                            Text(
+                                text = "Remove Profile Picture",
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                },
+                confirmButton = { },
+                dismissButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text(
+                            text = "Cancel",
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.background
+            )
         }
     }
 }
