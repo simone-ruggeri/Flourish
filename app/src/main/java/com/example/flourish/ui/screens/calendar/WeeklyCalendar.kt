@@ -21,34 +21,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
+
 
 @Composable
-fun WeeklyCalendar() {
-    val daysOfWeek = listOf("Mo", "Tu", "We", "Th", "Fr", "Sa", "Su")
-    val dayNumbers = listOf(25, 26, 27, 28, 29, 1, 2) // Esempio di giorni
+fun WeeklyCalendar(
+    selectedDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit
+) {
+    // Trova il lunedì della settimana corrente
+    val startOfWeek = selectedDate.with(DayOfWeek.MONDAY)
 
-    var selectedDay by remember { mutableStateOf<Int?>(null) }
+    // Lista di 7 giorni da lunedì a domenica
+    val weekDates = (0..6).map { startOfWeek.plusDays(it.toLong()) }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Combina i due elenchi in coppie (giorno, numero)
-        daysOfWeek.zip(dayNumbers).forEach { (day, number) ->
+        weekDates.forEach { date ->
+            val dayName = date.dayOfWeek.getDisplayName(
+                TextStyle.SHORT,
+                Locale.getDefault()
+            ) // e.g., "Mon", "Tue"
+            val dayNumber = date.dayOfMonth
 
-            // Ogni elemento è una colonna (giorno sopra e numero sotto)
             Column(
-                modifier = Modifier
-                    .padding(vertical = 8.dp),
+                modifier = Modifier.padding(vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = day,
+                    text = dayName,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -57,28 +66,22 @@ fun WeeklyCalendar() {
                 Card(
                     modifier = Modifier
                         .size(40.dp)
-                        .clickable { selectedDay = number }
-                        .shadow(
-                            elevation = 4.dp,
-                            shape = CircleShape,
-                            clip = false // Lascia l'ombra fuori dal contenuto
-                        ),
+                        .clickable { onDateSelected(date) },
                     shape = CircleShape,
                     colors = CardDefaults.cardColors(
-                        containerColor = if (selectedDay == number) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surface
+                        containerColor = if (selectedDate == date) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surface
                     ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 ) {
-                    // Box per centrare il numero all'interno del cerchio
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = number.toString(),
+                            text = dayNumber.toString(),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
-                            color = if (selectedDay == number) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.primary
+                            color = if (selectedDate == date) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.primary
                         )
                     }
                 }

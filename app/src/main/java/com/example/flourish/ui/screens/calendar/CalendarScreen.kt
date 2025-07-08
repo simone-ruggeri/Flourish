@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -13,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,11 +30,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.flourish.R
+import com.example.flourish.viewmodel.ActivityDialogViewModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
-fun CalendarScreen() {
-
+fun CalendarScreen(viewModel: ActivityDialogViewModel) {
     var showDialog by remember { mutableStateOf(false) }
+
+    val selectedDate by viewModel.selectedDate.collectAsState()
+    val activities by viewModel.activities.collectAsState()
+
+    val currentMonthYear = remember(selectedDate) {
+        val formatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault())
+        selectedDate.format(formatter)
+    }
 
     Box {
         Column(
@@ -41,7 +56,7 @@ fun CalendarScreen() {
         ) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Wellness Dairy",
+                text = "Wellness Diary",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
@@ -50,23 +65,33 @@ fun CalendarScreen() {
 
             Spacer(modifier = Modifier.height(48.dp))
             Text(
-                text = "March 2025",
+                text = currentMonthYear,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            WeeklyCalendar()
+            WeeklyCalendar(
+                selectedDate = selectedDate,
+                onDateSelected = { date -> viewModel.setSelectedDate(date) }
+            )
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            ActivityCard(
-                iconActivity = R.drawable.activity_meditation,
-                activityName = "Meditation",
-                minutes = 30,
-                waterDrops = 4
-            )
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(activities) { activity ->
+                    ActivityCard(
+                        iconActivity = activity.iconRes,
+                        activityName = activity.activityName,
+                        minutes = activity.minutes,
+                        waterDrops = activity.waterDrops
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
         }
 
         ExtendedFloatingActionButton(
@@ -97,7 +122,7 @@ fun CalendarScreen() {
         ActivityDialog(
             showDialog = showDialog,
             onDismiss = { showDialog = false },
-            onConfirm = { /*TODO*/ }
+            viewModel = viewModel
         )
     }
 }

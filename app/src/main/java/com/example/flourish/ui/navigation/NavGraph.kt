@@ -20,6 +20,7 @@ import com.example.flourish.ui.screens.mood.MoodScreen
 import com.example.flourish.ui.screens.profile.ProfileScreen
 import com.example.flourish.ui.screens.signup.SignupScreen
 import com.example.flourish.ui.screens.sleep.SleepScreen
+import com.example.flourish.viewmodel.ActivityDialogViewModel
 import com.example.flourish.viewmodel.LoginViewModel
 import com.example.flourish.viewmodel.ProfileViewModel
 import com.example.flourish.viewmodel.SignupViewModel
@@ -90,7 +91,8 @@ fun NavGraph(
             )
         }
         composable(NavigationRoute.Calendar.route) {
-            CalendarScreen()
+            val activityDialogViewModel: ActivityDialogViewModel = koinViewModel()
+            CalendarScreen(viewModel = activityDialogViewModel)
         }
         composable(NavigationRoute.Exercises.route) {
             ExercisesScreen(

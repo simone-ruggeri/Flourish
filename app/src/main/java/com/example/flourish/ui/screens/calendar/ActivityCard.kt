@@ -28,11 +28,19 @@ fun ActivityCard(
     iconActivity: Int,
     activityName: String,
     minutes: Int? = null,
-    waterDrops: Int
+    waterDrops: Int,
+    selected: Boolean = false,
+    modifier: Modifier = Modifier
 ) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(
+            containerColor = if (selected)
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+            else
+                MaterialTheme.colorScheme.surface
+        ),
+        modifier = modifier
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -74,7 +82,8 @@ fun ActivityCard(
                 modifier = Modifier.padding(end = 8.dp)
             ) {
                 Text(
-                    text = waterDrops.toString()
+                    text = waterDrops.toString(),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Icon(

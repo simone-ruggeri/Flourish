@@ -3,7 +3,9 @@ package com.example.flourish
 import androidx.room.Room
 import com.example.flourish.data.database.AppDatabase
 import com.example.flourish.data.preferences.UserPreferences
+import com.example.flourish.data.repository.UserActivityRepository
 import com.example.flourish.data.repository.UserRepository
+import com.example.flourish.viewmodel.ActivityDialogViewModel
 import com.example.flourish.viewmodel.LoginViewModel
 import com.example.flourish.viewmodel.ProfileViewModel
 import com.example.flourish.viewmodel.SignupViewModel
@@ -24,9 +26,11 @@ val appModule = module {
 
     // DAO
     single { get<AppDatabase>().userDao() }
+    single { get<AppDatabase>().userActivityDao() }
 
     // Repository
     single { UserRepository(get()) }
+    single { UserActivityRepository(get()) }
 
     //UserPreferences
     single { UserPreferences(get()) }
@@ -35,4 +39,5 @@ val appModule = module {
     viewModel { LoginViewModel(get(), get()) }
     viewModel { SignupViewModel(get())}
     viewModel { ProfileViewModel(get(), get())}
+    viewModel {ActivityDialogViewModel(get(), get())}
 }

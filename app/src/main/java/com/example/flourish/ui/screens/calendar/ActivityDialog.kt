@@ -1,6 +1,7 @@
 package com.example.flourish.ui.screens.calendar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Icon
@@ -22,6 +24,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,9 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.flourish.R
+import com.example.flourish.viewmodel.ActivityDialogViewModel
 
 data class ActivityItem(
     val name: String,
@@ -45,16 +51,40 @@ data class ActivityItem(
 fun ActivityDialog(
     showDialog: Boolean,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    viewModel: ActivityDialogViewModel
 ) {
-    var selectedActivity by remember { mutableStateOf("Running") }
+    var selectedActivity by remember { mutableStateOf<ActivityItem?>(null) }
     var time by remember { mutableStateOf("") }
 
     val activities = listOf(
         ActivityItem("Running", 10, R.drawable.activity_running),
         ActivityItem("Meditation", 8, R.drawable.activity_meditation),
-        ActivityItem("Yoga", 7, R.drawable.activity_reading)
+        ActivityItem("Reading", 7, R.drawable.activity_reading)
     )
+
+    val saveResult by viewModel.saveResult.collectAsState()
+
+    // Quando salvataggio è successo, chiudo dialog e resetto stato
+    LaunchedEffect(saveResult) {
+        when (saveResult) {
+            true -> {
+                onDismiss()
+                viewModel.resetSaveResult()
+            }
+            false -> {
+                // Qui potresti mostrare un messaggio di errore
+                viewModel.resetSaveResult()
+            }
+            null -> Unit
+        }
+    }
+
+    LaunchedEffect(showDialog) {
+        if (showDialog) {
+            selectedActivity = null
+            time = ""
+        }
+    }
 
     if (showDialog) {
         Dialog(onDismissRequest = onDismiss) {
@@ -85,7 +115,9 @@ fun ActivityDialog(
                         ActivityCard(
                             iconActivity = activity.icon,
                             activityName = activity.name,
-                            waterDrops = activity.waterDrops
+                            waterDrops = activity.waterDrops,
+                            selected = (selectedActivity == activity),
+                            modifier = Modifier.clickable { selectedActivity = activity }
                         )
                     }
                 }
@@ -94,14 +126,17 @@ fun ActivityDialog(
 
                 OutlinedTextField(
                     value = time,
-                    onValueChange = { time = it },
+                    onValueChange = {input ->
+                        // Consenti solo numeri
+                        if (input.all { it.isDigit() }) time = input
+                    },
                     label = {
                         Text(
                             text = "Time (minutes)",
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     },
-                    //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Filled.Timer,
@@ -124,8 +159,7 @@ fun ActivityDialog(
                         )
                     }
                     TextButton(onClick = {
-                        onConfirm()
-                        onDismiss()
+                        viewModel.onAddClicked(selectedActivity, time)
                     }) {
                         Text(
                             text = "Add",
