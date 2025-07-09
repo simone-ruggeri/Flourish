@@ -40,6 +40,7 @@ class LoginViewModel(
         val state = _loginUiState.value
         if (state.email.isBlank()) {
             _loginUiState.value = state.copy(emailError = "Email cannot be empty")
+            return
         }
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(state.email).matches()) {
             _loginUiState.value = state.copy(emailError = "Invalid email format")
@@ -47,6 +48,7 @@ class LoginViewModel(
         }
         if (state.password.isBlank()) {
             _loginUiState.value = state.copy(passwordError = "Password cannot be empty")
+            return
         }
         _loginUiState.value = state.copy(isLoading = true, errorMessage = null)
 
