@@ -1,7 +1,5 @@
 package com.example.flourish.viewmodel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flourish.data.model.UserActivity
@@ -9,16 +7,10 @@ import com.example.flourish.data.preferences.UserPreferences
 import com.example.flourish.data.repository.UserActivityRepository
 import com.example.flourish.ui.screens.calendar.ActivityItem
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Date
-import java.util.Locale
 
 class ActivityDialogViewModel(
     private val repository: UserActivityRepository,

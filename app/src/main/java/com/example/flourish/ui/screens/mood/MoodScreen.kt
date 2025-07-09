@@ -30,10 +30,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.flourish.R
 import com.example.flourish.ui.navigation.NavigationRoute
+import com.example.flourish.viewmodel.MoodRatingViewModel
 
 @Composable
 fun MoodScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: MoodRatingViewModel
 ) {
     // State per tracciare l'icona selezionata
     val selectedMood = remember { mutableStateOf<Pair<Int, String>?>(null) }
@@ -110,7 +112,13 @@ fun MoodScreen(
         // FAB in basso a destra
         FloatingActionButton(
             onClick = {
-                navController.navigate(NavigationRoute.Mood.route)
+                selectedMood.value?.let { (_, description) ->
+                    viewModel.saveMoodRating(description) {
+                        navController.navigate(NavigationRoute.Homepage.route) {
+                            popUpTo(NavigationRoute.Mood.route) { inclusive = true }
+                        }
+                    }
+                }
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)

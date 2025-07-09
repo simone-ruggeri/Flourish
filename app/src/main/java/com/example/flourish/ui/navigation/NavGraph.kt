@@ -22,8 +22,10 @@ import com.example.flourish.ui.screens.signup.SignupScreen
 import com.example.flourish.ui.screens.sleep.SleepScreen
 import com.example.flourish.viewmodel.ActivityDialogViewModel
 import com.example.flourish.viewmodel.LoginViewModel
+import com.example.flourish.viewmodel.MoodRatingViewModel
 import com.example.flourish.viewmodel.ProfileViewModel
 import com.example.flourish.viewmodel.SignupViewModel
+import com.example.flourish.viewmodel.SleepRatingViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -81,13 +83,17 @@ fun NavGraph(
             )
         }
         composable(NavigationRoute.Sleep.route) {
+            val sleepRatingViewModel: SleepRatingViewModel = koinViewModel()
             SleepScreen(
-                navController = navController
+                navController = navController,
+                viewModel = sleepRatingViewModel
             )
         }
         composable(NavigationRoute.Mood.route) {
+            val moodRatingViewModel: MoodRatingViewModel = koinViewModel()
             MoodScreen(
-                navController = navController
+                navController = navController,
+                viewModel = moodRatingViewModel
             )
         }
         composable(NavigationRoute.Calendar.route) {

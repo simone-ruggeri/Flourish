@@ -22,6 +22,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,12 +37,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.flourish.R
 import com.example.flourish.ui.navigation.NavigationRoute
+import com.example.flourish.viewmodel.SleepRatingViewModel
 
 @Composable
 fun SleepScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: SleepRatingViewModel
 ) {
-    // State per tracciare l'icona selezionata
+
+    val hasRatedToday by viewModel.hasRatedToday.collectAsState()
     val selectedMood = remember { mutableStateOf<Pair<Int, String>?>(null) }
 
     // Lista di tutte le icone con il relativo messaggio
@@ -50,6 +56,15 @@ fun SleepScreen(
         R.drawable.mood_happy to "6-7 hours",
         R.drawable.mood_overjoyed to "7-9 hours"
     )
+
+    LaunchedEffect(hasRatedToday) {
+        if (hasRatedToday == true) {
+            navController.navigate(NavigationRoute.Mood.route) {
+                popUpTo(NavigationRoute.Sleep.route) { inclusive = true }
+            }
+        }
+    }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -134,7 +149,9 @@ fun SleepScreen(
         // FAB in basso a destra
         FloatingActionButton(
             onClick = {
-                navController.navigate(NavigationRoute.Mood.route)
+                selectedMood.value?.let { (_, description) ->
+                    viewModel.saveSleepRating(description)
+                }
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
