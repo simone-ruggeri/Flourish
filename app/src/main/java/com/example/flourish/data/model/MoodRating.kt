@@ -21,6 +21,6 @@ import androidx.room.PrimaryKey
 data class MoodRating(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "date") val date: String,
-    @ColumnInfo(name = "rating") val rating: String,
+    @ColumnInfo(name = "rating") val rating: Int,
     @ColumnInfo(name = "user_id") val userId: Long
 )

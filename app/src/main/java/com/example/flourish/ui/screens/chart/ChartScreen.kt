@@ -27,11 +27,23 @@ import com.example.flourish.ui.theme.ActivityReadingColor
 import com.example.flourish.ui.theme.ActivityRunningColor
 import com.example.flourish.viewmodel.ActivityDistribution
 import com.example.flourish.viewmodel.ChartViewModel
+import com.example.flourish.viewmodel.MoodDistribution
+import com.example.flourish.viewmodel.SleepDistribution
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.charts.PieChart
-
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 
 
 @Composable
@@ -45,22 +57,68 @@ fun ChartScreen(
     val sleepRatings by viewodel.weeklySleep.collectAsState()
 
     LaunchedEffect(userId) {
-        userId?.let { viewodel.loadWeeklyActivities(it) }
+        userId?.let {
+            viewodel.loadWeeklyActivities(it)
+            viewodel.loadWeeklyMood(it)
+            viewodel.loadWeeklySleep(it)
+        }
     }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
     ) {
         item {
-            Text("Distribuzione Attività", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        item {
+            Text(
+                text = "Activity Distribution",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
             Spacer(Modifier.height(8.dp))
             if (activityDist.isNotEmpty()) {
                 ActivityPieChart(activityDistribution = activityDist)
             } else {
                 EmptyChart()
             }
+        }
+
+        item {
+            Spacer(Modifier.height(24.dp))
+            Text(
+                text = "Sleep Pattern",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.height(8.dp))
+            if (sleepRatings.any { it.rating != 0 }) {
+                SleepBarChart(sleepRatings)
+            } else {
+                EmptyChart()
+            }
+        }
+
+        item {
+            Spacer(Modifier.height(24.dp))
+            Text(
+                text = "Mood Trends",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(Modifier.height(8.dp))
+            if (moodRatings.any { it.rating != 0 }) {
+                MoodBarChart(moodRatings)
+            } else {
+                EmptyChart()
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -121,6 +179,189 @@ fun ActivityPieChart(activityDistribution: List<ActivityDistribution>) {
 }
 
 @Composable
+fun SleepBarChart(sleepRatings: List<SleepDistribution>) {
+    val textColor = MaterialTheme.colorScheme.onBackground.toArgb()
+    val barColor = MaterialTheme.colorScheme.tertiary.toArgb()
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+            factory = { context -> BarChart(context) },
+            update = { chart ->
+                val entries = sleepRatings.mapIndexed { index, sleep ->
+                    BarEntry(index.toFloat(), sleep.rating.toFloat())
+                }
+
+                /*val dataSet = BarDataSet(entries, "Sleep Quality").apply {
+                    color = barColor
+                    valueTextColor = textColor
+                    valueTextSize = 12f
+                }*/
+                val dataSet = BarDataSet(entries, "Sleep Quality").apply {
+                    color = barColor
+                    valueTextColor = textColor
+                    valueTextSize = 18f
+                    valueFormatter = object : ValueFormatter() {
+                        override fun getBarLabel(barEntry: BarEntry?): String {
+                            return when (barEntry?.y?.toInt()) {
+                                1 -> "😞"
+                                2 -> "😟"
+                                3 -> "😐"
+                                4 -> "🙂"
+                                5 -> "😄"
+                                else -> ""
+                            }
+                        }
+                    }
+                }
+
+
+                chart.data = BarData(dataSet)
+
+                val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+                val labels = daysOfWeek.take(sleepRatings.size)
+
+                chart.xAxis.apply {
+                    valueFormatter = IndexAxisValueFormatter(labels)
+                    position = XAxis.XAxisPosition.BOTTOM
+                    granularity = 1f
+                    setDrawGridLines(false)
+                    setTextColor(textColor)
+                    setLabelCount(labels.size, false)
+                    axisMinimum = -0.5f
+                    axisMaximum = labels.size - 0.5f
+                }
+
+                chart.axisLeft.apply {
+                    axisMinimum = 0f
+                    granularity = 1f
+                    setDrawGridLines(true)
+                    setTextColor(textColor)
+                    valueFormatter = object : ValueFormatter() {
+                        override fun getFormattedValue(value: Float): String {
+                            //  return if (value % 1f == 0f) value.toInt().toString() else ""
+                            return when (value.toInt()) {
+                                1 -> "😞"
+                                2 -> "😟"
+                                3 -> "😐"
+                                4 -> "🙂"
+                                5 -> "😄"
+                                else -> ""
+                            }
+                        }
+                    }
+                }
+
+                chart.axisRight.isEnabled = false
+                chart.legend.textColor = textColor
+                chart.description.isEnabled = false
+
+                chart.invalidate()
+            }
+        )
+    }
+}
+
+@Composable
+fun MoodBarChart(moodRatings: List<MoodDistribution>) {
+    val textColor = MaterialTheme.colorScheme.onBackground.toArgb()
+    val barColor = MaterialTheme.colorScheme.secondary.toArgb()
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
+            factory = { context -> BarChart(context) },
+            update = { chart ->
+                val entries = moodRatings.mapIndexed { index, mood ->
+                    BarEntry(index.toFloat(), mood.rating.toFloat())
+                }
+
+                /*val dataSet = BarDataSet(entries, "Mood Average").apply {
+                    color = barColor
+                    valueTextColor = textColor
+                    valueTextSize = 12f
+                }*/
+                val dataSet = BarDataSet(entries, "Mood Average").apply {
+                    color = barColor
+                    valueTextColor = textColor
+                    valueTextSize = 18f
+                    valueFormatter = object : ValueFormatter() {
+                        override fun getBarLabel(barEntry: BarEntry?): String {
+                            return when (barEntry?.y?.toInt()) {
+                                1 -> "😞"
+                                2 -> "😟"
+                                3 -> "😐"
+                                4 -> "🙂"
+                                5 -> "😄"
+                                else -> ""
+                            }
+                        }
+                    }
+                }
+
+
+                chart.data = BarData(dataSet)
+
+                val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+                val labels = daysOfWeek.take(moodRatings.size)
+
+                chart.xAxis.apply {
+                    valueFormatter = IndexAxisValueFormatter(labels)
+                    position = XAxis.XAxisPosition.BOTTOM
+                    granularity = 1f
+                    setDrawGridLines(false)
+                    setTextColor(textColor)
+                    setLabelCount(labels.size, false)
+                    axisMinimum = -0.5f
+                    axisMaximum = labels.size - 0.5f
+                }
+
+                chart.axisLeft.apply {
+                    axisMinimum = 0f
+                    granularity = 1f
+                    setDrawGridLines(true)
+                    setTextColor(textColor)
+                    valueFormatter = object : ValueFormatter() {
+                        override fun getFormattedValue(value: Float): String {
+                            // return if (value % 1f == 0f) value.toInt().toString() else ""
+                            return when (value.toInt()) {
+                                1 -> "😞"
+                                2 -> "😟"
+                                3 -> "😐"
+                                4 -> "🙂"
+                                5 -> "😄"
+                                else -> ""
+                            }
+                        }
+                    }
+                }
+
+                chart.axisRight.isEnabled = false
+                chart.legend.textColor = textColor
+                chart.description.isEnabled = false
+
+                chart.invalidate()
+            }
+        )
+    }
+}
+
+@Composable
 fun EmptyChart() {
     Card(
         modifier = Modifier
@@ -138,13 +379,13 @@ fun EmptyChart() {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Charts not available.",
+                text = "Chart not available.",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "No routes completed yet.",
+                text = "No data entered yet for this week",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )

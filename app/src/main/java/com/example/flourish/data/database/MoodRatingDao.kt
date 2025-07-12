@@ -12,9 +12,6 @@ interface MoodRatingDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(moodRating: MoodRating)
 
-    @Query("SELECT * FROM mood_ratings WHERE date = :date AND user_id = :userId LIMIT 1")
-    suspend fun getMoodRatingByDateAndUser(date: String, userId: Long): MoodRating?
-
-    @Query("SELECT * FROM mood_ratings WHERE user_id = :userId ORDER BY date DESC")
-    suspend fun getAll(userId: Long): List<MoodRating>
+    @Query("SELECT * FROM mood_ratings WHERE user_id = :userId AND date BETWEEN :startDate || ' 00:00:00' AND :endDate || ' 23:59:59'")
+    suspend fun getMoodRatingsForWeek(userId: Long, startDate: String, endDate: String): List<MoodRating>
 }

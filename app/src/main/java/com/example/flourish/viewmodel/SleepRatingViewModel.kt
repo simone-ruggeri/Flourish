@@ -38,7 +38,7 @@ class SleepRatingViewModel(
         }
     }
 
-    fun saveSleepRating(rating: String) {
+    fun saveSleepRating(rating: Int) {
         viewModelScope.launch {
             val currentUserId = _userId.value
             if (currentUserId != null) {

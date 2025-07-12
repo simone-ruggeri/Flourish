@@ -29,7 +29,7 @@ class MoodRatingViewModel(
         }
     }
 
-    fun saveMoodRating(rating: String, onSaved: () -> Unit) {
+    fun saveMoodRating(rating: Int, onSaved: () -> Unit) {
         viewModelScope.launch {
             val currentUserId = _userId.value
             if (currentUserId != null) {

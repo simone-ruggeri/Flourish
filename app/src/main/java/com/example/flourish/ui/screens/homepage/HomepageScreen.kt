@@ -60,7 +60,7 @@ fun HomepageScreen(
         item {
             Spacer(modifier = Modifier.height(16.dp))
             Icon(
-                painter = painterResource(id = R.drawable.plant_example),
+                painter = painterResource(id = R.drawable.plant_v_1),
                 contentDescription = "week-calendar-icon",
                 modifier = Modifier.size(192.dp),
                 tint = Color.Unspecified

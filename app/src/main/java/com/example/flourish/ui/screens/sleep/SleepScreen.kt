@@ -39,6 +39,12 @@ import com.example.flourish.R
 import com.example.flourish.ui.navigation.NavigationRoute
 import com.example.flourish.viewmodel.SleepRatingViewModel
 
+data class SleepLevel(
+    val rating: Int,
+    val label: String,
+    val iconRes: Int
+)
+
 @Composable
 fun SleepScreen(
     navController: NavHostController,
@@ -46,15 +52,15 @@ fun SleepScreen(
 ) {
 
     val hasRatedToday by viewModel.hasRatedToday.collectAsState()
-    val selectedMood = remember { mutableStateOf<Pair<Int, String>?>(null) }
+    val selectedMood = remember { mutableStateOf<SleepLevel?>(null) }
 
     // Lista di tutte le icone con il relativo messaggio
-    val moodIcons = listOf(
-        R.drawable.mood_depressed to "2-4 hours",
-        R.drawable.mood_sad to "4-5 hours",
-        R.drawable.mood_neutral to "5-6 hours",
-        R.drawable.mood_happy to "6-7 hours",
-        R.drawable.mood_overjoyed to "7-9 hours"
+    val sleepLevels = listOf(
+        SleepLevel(1, "2-4 hours", R.drawable.mood_depressed),
+        SleepLevel(2, "4-5 hours", R.drawable.mood_sad),
+        SleepLevel(3, "5-6 hours", R.drawable.mood_neutral),
+        SleepLevel(4, "6-7 hours", R.drawable.mood_happy),
+        SleepLevel(5, "7-9 hours", R.drawable.mood_overjoyed)
     )
 
     LaunchedEffect(hasRatedToday) {
@@ -89,12 +95,12 @@ fun SleepScreen(
                     .size(240.dp),
                 contentAlignment = Alignment.Center
             ) {
-                selectedMood.value?.let { (icon, description) ->
+                selectedMood.value?.let { sleep ->
                     // Mostra l'icona selezionata
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
-                            painter = painterResource(id = icon),
-                            contentDescription = "Selected Icon",
+                            painter = painterResource(id = sleep.iconRes),
+                            contentDescription = sleep.label,
                             modifier = Modifier.size(180.dp),
                             tint = Color.Unspecified
                         )
@@ -111,7 +117,7 @@ fun SleepScreen(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = description,
+                                text = sleep.label,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 textAlign = TextAlign.Center,
@@ -130,15 +136,15 @@ fun SleepScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                moodIcons.forEach { (iconId, description) ->
+                sleepLevels.forEach { sleep ->
                     Icon(
-                        painter = painterResource(id = iconId),
-                        contentDescription = description,
+                        painter = painterResource(id = sleep.iconRes),
+                        contentDescription = sleep.label,
                         modifier = Modifier
                             .size(48.dp)
                             .clickable {
                                 // Aggiorna l'icona selezionata
-                                selectedMood.value = iconId to description
+                                selectedMood.value = sleep
                             },
                         tint = Color.Unspecified
                     )
@@ -149,8 +155,8 @@ fun SleepScreen(
         // FAB in basso a destra
         FloatingActionButton(
             onClick = {
-                selectedMood.value?.let { (_, description) ->
-                    viewModel.saveSleepRating(description)
+                selectedMood.value?.let { sleep ->
+                    viewModel.saveSleepRating(sleep.rating)
                 }
             },
             modifier = Modifier

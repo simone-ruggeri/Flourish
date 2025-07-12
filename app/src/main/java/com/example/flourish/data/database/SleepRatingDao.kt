@@ -15,6 +15,6 @@ interface SleepRatingDao {
     @Query("SELECT * FROM sleep_ratings WHERE date = :date AND user_id = :userId LIMIT 1")
     suspend fun getSleepRatingByDateAndUser(date: String, userId: Long): SleepRating?
 
-    @Query("SELECT * FROM sleep_ratings WHERE user_id = :userId ORDER BY date DESC")
-    suspend fun getAll(userId: Long): List<SleepRating>
+    @Query("SELECT * FROM sleep_ratings WHERE user_id = :userId AND date BETWEEN :startDate AND :endDate")
+    suspend fun getSleepRatingsForWeek(userId: Long, startDate: String, endDate: String): List<SleepRating>
 }

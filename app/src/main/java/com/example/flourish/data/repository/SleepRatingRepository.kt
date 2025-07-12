@@ -14,7 +14,7 @@ class SleepRatingRepository(private val dao: SleepRatingDao) {
         return dao.getSleepRatingByDateAndUser(date, userId)
     }
 
-    suspend fun getAll(userId: Long): List<SleepRating> {
-        return dao.getAll(userId)
+    suspend fun getSleepRatingsForWeek(userId: Long, startDate: String, endDate: String): List<SleepRating> {
+        return dao.getSleepRatingsForWeek(userId, startDate, endDate)
     }
 }

@@ -21,12 +21,12 @@ data class ActivityDistribution(
 
 data class MoodDistribution(
     val timestamp: String,
-    val rating: String
+    val rating: Int
 )
 
 data class SleepDistribution(
     val date: String,
-    val rating: String
+    val rating: Int
 )
 
 
@@ -53,7 +53,7 @@ class ChartViewModel(
         }
     }
 
-    fun getCurrentWeekDates(): List<String> {
+    private fun getCurrentWeekDates(): List<String> {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val today = LocalDate.now()
         val monday = today.with(DayOfWeek.MONDAY)
@@ -79,4 +79,55 @@ class ChartViewModel(
             weeklyActivityDistribution.value = grouped
         }
     }
+
+    fun loadWeeklyMood(userId: Long) {
+        viewModelScope.launch {
+            if (weeklyMood.value.isNotEmpty()) return@launch
+
+            val dates = getCurrentWeekDates()
+            val startDate = dates.first()
+            val endDate = dates.last()
+
+            val moods = moodRepository.getMoodRatingsForWeek(userId, startDate, endDate)
+
+            // Raggruppa per data e calcola media per ciascun giorno
+            val moodByDay = moods.groupBy { it.date.substring(0, 10) }
+                .mapValues { (_, entries) -> entries.map { it.rating }.average().toInt() }
+
+            // Crea lista settimanale completa con 0 dove mancano dati
+            val weeklyData = dates.map { date ->
+                MoodDistribution(
+                    timestamp = date,
+                    rating = moodByDay[date] ?: 0
+                )
+            }
+
+            weeklyMood.value = weeklyData
+        }
+    }
+
+
+    fun loadWeeklySleep(userId: Long) {
+        viewModelScope.launch {
+            if (weeklySleep.value.isNotEmpty()) return@launch
+
+            val dates = getCurrentWeekDates()
+            val startDate = dates.first()
+            val endDate = dates.last()
+
+            val sleeps = sleepRepository.getSleepRatingsForWeek(userId, startDate, endDate)
+
+            val sleepByDay = sleeps.associateBy { it.date } // Un solo valore al giorno
+
+            val weeklyData = dates.map { date ->
+                SleepDistribution(
+                    date = date,
+                    rating = sleepByDay[date]?.rating ?: 0
+                )
+            }
+
+            weeklySleep.value = weeklyData
+        }
+    }
+
 }

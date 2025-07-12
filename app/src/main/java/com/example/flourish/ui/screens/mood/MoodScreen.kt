@@ -34,21 +34,26 @@ import com.example.flourish.R
 import com.example.flourish.ui.navigation.NavigationRoute
 import com.example.flourish.viewmodel.MoodRatingViewModel
 
+data class MoodLevel(
+    val rating: Int,
+    val label: String,
+    val iconRes: Int
+)
+
 @Composable
 fun MoodScreen(
     navController: NavHostController,
     viewModel: MoodRatingViewModel
 ) {
     // State per tracciare l'icona selezionata
-    val selectedMood = remember { mutableStateOf<Pair<Int, String>?>(null) }
+    val selectedMood = remember { mutableStateOf<MoodLevel?>(null) }
 
-    // Lista di tutte le icone con il relativo messaggio
-    val moodIcons = listOf(
-        R.drawable.mood_depressed to "Very Bad",
-        R.drawable.mood_sad to "Bad",
-        R.drawable.mood_neutral to "Neutral",
-        R.drawable.mood_happy to "Well",
-        R.drawable.mood_overjoyed to "Excellent"
+    val moodLevels = listOf(
+        MoodLevel(1, "Very Bad", R.drawable.mood_depressed),
+        MoodLevel(2, "Bad", R.drawable.mood_sad),
+        MoodLevel(3, "Neutral", R.drawable.mood_neutral),
+        MoodLevel(4, "Well", R.drawable.mood_happy),
+        MoodLevel(5, "Excellent", R.drawable.mood_overjoyed)
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -74,19 +79,19 @@ fun MoodScreen(
                     .size(240.dp),
                 contentAlignment = Alignment.Center
             ) {
-                selectedMood.value?.let { (icon, description) ->
+                selectedMood.value?.let { mood ->
                     // Mostra l'icona selezionata
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
-                            painter = painterResource(id = icon),
-                            contentDescription = "Selected Icon",
+                            painter = painterResource(id = mood.iconRes),
+                            contentDescription = mood.label,
                             modifier = Modifier.size(180.dp),
                             tint = Color.Unspecified
                         )
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Text(
-                            text = description,
+                            text = mood.label,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center,
@@ -104,15 +109,15 @@ fun MoodScreen(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                moodIcons.forEach { (iconId, description) ->
+                moodLevels.forEach { mood ->
                     Icon(
-                        painter = painterResource(id = iconId),
-                        contentDescription = description,
+                        painter = painterResource(id = mood.iconRes),
+                        contentDescription = mood.label,
                         modifier = Modifier
                             .size(48.dp)
                             .clickable {
                                 // Aggiorna l'icona selezionata
-                                selectedMood.value = iconId to description
+                                selectedMood.value = mood
                             },
                         tint = Color.Unspecified
                     )
@@ -123,8 +128,8 @@ fun MoodScreen(
         // FAB in basso a destra
         FloatingActionButton(
             onClick = {
-                selectedMood.value?.let { (_, description) ->
-                    viewModel.saveMoodRating(description) {
+                selectedMood.value?.let { mood ->
+                    viewModel.saveMoodRating(mood.rating) {
                         navController.navigate(NavigationRoute.Homepage.route) {
                             popUpTo(NavigationRoute.Mood.route) { inclusive = true }
                         }

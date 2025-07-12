@@ -11,11 +11,7 @@ class MoodRatingRepository(private val dao: MoodRatingDao) {
         dao.insert(moodRating)
     }
 
-    suspend fun getMoodRatingByDateAndUser(date: String, userId: Long): MoodRating? {
-        return dao.getMoodRatingByDateAndUser(date, userId)
-    }
-
-    suspend fun getAll(userId: Long): List<MoodRating> {
-        return dao.getAll(userId)
+    suspend fun getMoodRatingsForWeek(userId: Long, startDate: String, endDate: String): List<MoodRating> {
+        return dao.getMoodRatingsForWeek(userId, startDate, endDate)
     }
 }
