@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -72,7 +74,7 @@ fun MoodScreen(
                     .size(240.dp),
                 contentAlignment = Alignment.Center
             ) {
-                selectedMood.value?.let { (icon) ->
+                selectedMood.value?.let { (icon, description) ->
                     // Mostra l'icona selezionata
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
@@ -80,6 +82,15 @@ fun MoodScreen(
                             contentDescription = "Selected Icon",
                             modifier = Modifier.size(180.dp),
                             tint = Color.Unspecified
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = description,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }

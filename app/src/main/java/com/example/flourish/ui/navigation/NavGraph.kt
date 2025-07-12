@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import com.example.flourish.data.preferences.UserPreferences
 import com.example.flourish.ui.screens.breathing.BreathingScreen
 import com.example.flourish.ui.screens.calendar.CalendarScreen
+import com.example.flourish.ui.screens.chart.ChartScreen
 import com.example.flourish.ui.screens.exercises.ExercisesScreen
 import com.example.flourish.ui.screens.homepage.HomepageScreen
 import com.example.flourish.ui.screens.login.LoadingScreen
@@ -21,6 +22,7 @@ import com.example.flourish.ui.screens.profile.ProfileScreen
 import com.example.flourish.ui.screens.signup.SignupScreen
 import com.example.flourish.ui.screens.sleep.SleepScreen
 import com.example.flourish.viewmodel.ActivityDialogViewModel
+import com.example.flourish.viewmodel.ChartViewModel
 import com.example.flourish.viewmodel.LoginViewModel
 import com.example.flourish.viewmodel.MoodRatingViewModel
 import com.example.flourish.viewmodel.ProfileViewModel
@@ -117,6 +119,10 @@ fun NavGraph(
                 navController = navController,
                 profileViewModel = profileViewModel
             )
+        }
+        composable(NavigationRoute.Stats.route) {
+            val chartViewModel: ChartViewModel = koinViewModel()
+            ChartScreen(viewodel = chartViewModel)
         }
     }
 }

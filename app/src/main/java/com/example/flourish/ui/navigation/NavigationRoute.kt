@@ -11,4 +11,5 @@ sealed class NavigationRoute (val route: String) {
     object Breathing: NavigationRoute("breathing")
     object Meditation: NavigationRoute("meditation")
     object Profile: NavigationRoute("profile")
+    object Stats: NavigationRoute("stats")
 }

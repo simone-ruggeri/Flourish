@@ -16,5 +16,5 @@ interface UserActivityDao {
     suspend fun getActivitiesForUserByDate(userId: Long, date: String): List<UserActivity>
 
     @Query("SELECT * FROM user_activities WHERE userId = :userId AND date BETWEEN :startDate AND :endDate ORDER BY date")
-    suspend fun getActivitiesInDateRange(userId: Long, startDate: String, endDate: String): List<UserActivity>
+    suspend fun getActivitiesForWeek(userId: Long, startDate: String, endDate: String): List<UserActivity>
 }

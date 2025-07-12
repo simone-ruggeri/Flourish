@@ -12,7 +12,7 @@ class UserActivityRepository(private val userActivityDao: UserActivityDao) {
         return userActivityDao.getActivitiesForUserByDate(userId, date)
     }
 
-    suspend fun getActivitiesInDateRange(userId: Long, startDate: String, endDate: String): List<UserActivity> {
-        return userActivityDao.getActivitiesInDateRange(userId, startDate, endDate)
+    suspend fun getActivitiesForWeek(userId: Long, startDate: String, endDate: String): List<UserActivity> {
+        return userActivityDao.getActivitiesForWeek(userId, startDate, endDate)
     }
 }

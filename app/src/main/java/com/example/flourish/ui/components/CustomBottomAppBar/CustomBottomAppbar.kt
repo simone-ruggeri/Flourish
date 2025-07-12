@@ -63,7 +63,7 @@ fun CustomBottomAppBar(
                     tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { navController.navigate(NavigationRoute.Stats.route) }) {
                 Icon(
                     painter = painterResource(id = R.drawable.bottom_app_bar_stats),
                     contentDescription = "stats",

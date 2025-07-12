@@ -13,3 +13,7 @@ val Grey10 = Color(0xFFC9C7C5)
 val Grey40 = Color(0xFFC9C7C5)
 
 val Beige10 = Color(0xFFF7F4F2)
+
+val ActivityRunningColor = Color(0xFF2EBCF6)
+val ActivityMeditationColor = Color(0xFF85D249)
+val ActivityReadingColor = Color(0xFFffc400)
