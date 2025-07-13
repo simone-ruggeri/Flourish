@@ -23,6 +23,7 @@ import com.example.flourish.ui.screens.signup.SignupScreen
 import com.example.flourish.ui.screens.sleep.SleepScreen
 import com.example.flourish.viewmodel.ActivityDialogViewModel
 import com.example.flourish.viewmodel.ChartViewModel
+import com.example.flourish.viewmodel.HomepageViewModel
 import com.example.flourish.viewmodel.LoginViewModel
 import com.example.flourish.viewmodel.MoodRatingViewModel
 import com.example.flourish.viewmodel.ProfileViewModel
@@ -80,8 +81,10 @@ fun NavGraph(
             )
         }
         composable(NavigationRoute.Homepage.route) {
+            val homepageViewModel: HomepageViewModel = koinViewModel()
             HomepageScreen(
-                navController = navController
+                navController = navController,
+                viewModel = homepageViewModel
             )
         }
         composable(NavigationRoute.Sleep.route) {

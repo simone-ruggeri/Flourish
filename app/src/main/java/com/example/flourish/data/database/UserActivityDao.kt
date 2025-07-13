@@ -17,4 +17,15 @@ interface UserActivityDao {
 
     @Query("SELECT * FROM user_activities WHERE userId = :userId AND date BETWEEN :startDate AND :endDate ORDER BY date")
     suspend fun getActivitiesForWeek(userId: Long, startDate: String, endDate: String): List<UserActivity>
+
+    @Query(
+        """
+    SELECT SUM(waterDrops) 
+    FROM user_activities 
+    WHERE userId = :userId 
+      AND date BETWEEN :startDate AND :endDate
+    """
+    )
+    suspend fun getWeeklyWaterDrops(userId: Long, startDate: String, endDate: String): Int?
+
 }

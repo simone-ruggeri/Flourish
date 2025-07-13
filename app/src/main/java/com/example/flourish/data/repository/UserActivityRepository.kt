@@ -15,4 +15,8 @@ class UserActivityRepository(private val userActivityDao: UserActivityDao) {
     suspend fun getActivitiesForWeek(userId: Long, startDate: String, endDate: String): List<UserActivity> {
         return userActivityDao.getActivitiesForWeek(userId, startDate, endDate)
     }
+
+    suspend fun getWeeklyWaterDrops(userId: Long, startDate: String, endDate: String): Int {
+        return userActivityDao.getWeeklyWaterDrops(userId, startDate, endDate) ?: 0
+    }
 }

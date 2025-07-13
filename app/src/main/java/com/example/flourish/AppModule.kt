@@ -9,6 +9,7 @@ import com.example.flourish.data.repository.UserActivityRepository
 import com.example.flourish.data.repository.UserRepository
 import com.example.flourish.viewmodel.ActivityDialogViewModel
 import com.example.flourish.viewmodel.ChartViewModel
+import com.example.flourish.viewmodel.HomepageViewModel
 import com.example.flourish.viewmodel.LoginViewModel
 import com.example.flourish.viewmodel.MoodRatingViewModel
 import com.example.flourish.viewmodel.ProfileViewModel
@@ -52,4 +53,5 @@ val appModule = module {
     viewModel { SleepRatingViewModel(get(), get()) }
     viewModel { MoodRatingViewModel(get(), get()) }
     viewModel { ChartViewModel(get(), get(), get(), get()) }
+    viewModel { HomepageViewModel(get(), get()) }
 }
