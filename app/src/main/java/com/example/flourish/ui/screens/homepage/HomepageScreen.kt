@@ -36,6 +36,7 @@ fun HomepageScreen(
     viewModel: HomepageViewModel
 ) {
     val weeklyWaterDrops by viewModel.weeklyWaterDrops.collectAsState()
+    val plantStatus by viewModel.plantStatus.collectAsState()
 
     LazyColumn(
         modifier = Modifier
@@ -75,7 +76,14 @@ fun HomepageScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                text = plantStatus,
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         item {
