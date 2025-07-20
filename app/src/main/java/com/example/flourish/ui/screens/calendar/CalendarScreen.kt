@@ -102,7 +102,11 @@ fun CalendarScreen(viewModel: ActivityDialogViewModel) {
                        tint = Color.Unspecified
                    )
             },
-            text = { Text(text = "Add Activity") },
+            text = {
+                Text(
+                    text = "Add Activity",
+                    color = MaterialTheme.colorScheme.onSurface
+                ) },
             onClick = { showDialog = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)

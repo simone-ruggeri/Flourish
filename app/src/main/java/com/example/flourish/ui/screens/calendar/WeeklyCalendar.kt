@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.time.DayOfWeek
@@ -66,12 +67,13 @@ fun WeeklyCalendar(
                 Card(
                     modifier = Modifier
                         .size(40.dp)
+                        .shadow(4.dp, CircleShape)
                         .clickable { onDateSelected(date) },
                     shape = CircleShape,
                     colors = CardDefaults.cardColors(
                         containerColor = if (selectedDate == date) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surface
                     ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
