@@ -61,11 +61,12 @@ val plantDrawables = mapOf(
 )
 
 val plantSize = 470.dp
-val transitionSize = 470.dp
 
 val transitionAnimations = mapOf(
     0 to R.raw.transition_v1_healthy_to_v2_healthy,
-    1 to R.raw.transition_v2_healthy_to_v3_healthy
+    1 to R.raw.transition_v2_healthy_to_v3_healthy,
+    2 to R.raw.transition_v3_healthy_to_v4_healthy,
+    3 to R.raw.transition_v4_healthy_to_v5_healthy
 )
 
 @Composable
@@ -91,7 +92,9 @@ fun HomepageScreen(
         delay(2000)
         viewModel.setPlantHealth("wilted")
         delay(2000)
-
+        viewModel.setShowTransition(true)
+        delay(2000)
+        viewModel.setShowTransition(false)
 
         viewModel.setPlantStage(1)
         viewModel.setPlantHealth("healthy")
@@ -100,6 +103,9 @@ fun HomepageScreen(
         delay(2000)
         viewModel.setPlantHealth("wilted")
         delay(2000)
+        viewModel.setShowTransition(true)
+        delay(2000)
+        viewModel.setShowTransition(false)
 
         viewModel.setPlantStage(2)
         viewModel.setPlantHealth("healthy")
@@ -108,6 +114,9 @@ fun HomepageScreen(
         delay(2000)
         viewModel.setPlantHealth("wilted")
         delay(2000)
+        viewModel.setShowTransition(true)
+        delay(2000)
+        viewModel.setShowTransition(false)
 
         viewModel.setPlantStage(3)
         viewModel.setPlantHealth("healthy")
@@ -116,6 +125,9 @@ fun HomepageScreen(
         delay(2000)
         viewModel.setPlantHealth("wilted")
         delay(2000)
+        viewModel.setShowTransition(true)
+        delay(2000)
+        viewModel.setShowTransition(false)
 
         viewModel.setPlantStage(4)
         viewModel.setPlantHealth("healthy")
@@ -159,7 +171,7 @@ fun HomepageScreen(
                     LottieAnimation(
                         composition = composition,
                         iterations = 1,
-                        modifier = Modifier.height(transitionSize)
+                        modifier = Modifier.height(plantSize)
                     )
                 } else {
                     Image(
