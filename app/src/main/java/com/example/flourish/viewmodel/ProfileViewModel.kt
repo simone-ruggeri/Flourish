@@ -47,7 +47,7 @@ class ProfileViewModel(
 
     fun logout() {
         viewModelScope.launch {
-            userPreferences.clearUserId()
+            userPreferences.clearUserSata()
 
             // Segnala alla UI che il logout è avvenuto
             _logoutEvent.value = true

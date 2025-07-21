@@ -31,9 +31,11 @@ class UserPreferences(private val context: Context) {
     }
 
     // Rimuovi lo userId (ad esempio, durante il logout)
-    suspend fun clearUserId() {
+    suspend fun clearUserSata() {
         context.dataStore.edit { preferences ->
             preferences.remove(USER_ID_KEY)
+            preferences.remove(PLANT_STAGE_KEY)
+            preferences.remove(PLANT_HEALTH_KEY)
         }
     }
 
@@ -54,5 +56,4 @@ class UserPreferences(private val context: Context) {
             preferences[PLANT_HEALTH_KEY] = health
         }
     }
-
 }

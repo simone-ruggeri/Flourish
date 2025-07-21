@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flourish.data.model.User
 import com.example.flourish.data.preferences.UserPreferences
+import com.example.flourish.data.repository.PlantRepository
 import com.example.flourish.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +20,8 @@ data class LoginUiState(
 )
 
 class LoginViewModel(
-    private val repository: UserRepository,
+    private val userRepository: UserRepository,
+    private val plantRepository: PlantRepository,
     private val userPreferences: UserPreferences
 ) : ViewModel() {
     private val _loginUiState = MutableStateFlow(LoginUiState())
@@ -53,12 +55,24 @@ class LoginViewModel(
         _loginUiState.value = state.copy(isLoading = true, errorMessage = null)
 
         viewModelScope.launch {
-            val result = repository.loginUser(state.email, state.password)
+            val result = userRepository.loginUser(state.email, state.password)
             if (result.isSuccess && result.getOrNull() != null) {
 
                 // Salva lo userId in UserPreferences
                 val user = result.getOrNull()!!
                 userPreferences.saveUserId(user.id)
+
+                val plant = plantRepository.getPlantByUserId(user.id)
+
+                if (plant != null) {
+                    userPreferences.savePlantStage(plant.stage)
+                    userPreferences.savePlantHealth(plant.health)
+                } else {
+                    // Se è un nuovo utente, imposta valori di default
+                    userPreferences.savePlantStage(0)
+                    userPreferences.savePlantHealth("healthy")
+                    plantRepository.insertOrUpdatePlant(user.id, 0, "healthy")
+                }
 
                 _loginState.value = Result.success(result.getOrNull())
                 _loginUiState.value = state.copy(

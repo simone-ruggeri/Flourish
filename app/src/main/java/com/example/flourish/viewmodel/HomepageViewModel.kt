@@ -3,6 +3,7 @@ package com.example.flourish.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flourish.data.preferences.UserPreferences
+import com.example.flourish.data.repository.PlantRepository
 import com.example.flourish.data.repository.UserActivityRepository
 import com.example.flourish.ui.screens.homepage.plantDrawables
 import kotlinx.coroutines.delay
@@ -19,7 +20,8 @@ import java.time.format.DateTimeFormatter
 
 class HomepageViewModel (
     private val userPreferences: UserPreferences,
-    private val repository: UserActivityRepository
+    private val userActivityRepository: UserActivityRepository,
+    private val plantRepository: PlantRepository
 ) : ViewModel() {
     private val _userId = MutableStateFlow<Long?>(null)
     val userId = _userId.asStateFlow()
@@ -66,7 +68,7 @@ class HomepageViewModel (
 
         viewModelScope.launch {
             val id = _userId.value ?: return@launch
-            val total = repository.getWeeklyWaterDrops(id, startDate, endDate)
+            val total = userActivityRepository.getWeeklyWaterDrops(id, startDate, endDate)
             _weeklyWaterDrops.value = total
             updateDailyHealth()
         }
@@ -111,6 +113,8 @@ class HomepageViewModel (
         viewModelScope.launch {
             userPreferences.savePlantHealth(health)
             _plantHealth.value = health
+            val user = userId.value ?: return@launch
+            plantRepository.insertOrUpdatePlant(user, plantStage.value, plantHealth.value)
         }
     }
 
@@ -122,8 +126,10 @@ class HomepageViewModel (
         if (drops >= growthThreshold && currentStage < maxStage) {
             val newStage = currentStage + 1
             viewModelScope.launch {
+                val user = userId.value ?: return@launch
                 userPreferences.savePlantStage(newStage)
                 _plantStage.value = newStage
+                plantRepository.insertOrUpdatePlant(user, newStage, plantHealth.value)
             }
         }
     }

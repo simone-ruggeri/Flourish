@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.flourish.data.preferences.UserPreferences
+import com.example.flourish.data.repository.UserRepository
 import com.example.flourish.ui.screens.breathing.BreathingScreen
 import com.example.flourish.ui.screens.calendar.CalendarScreen
 import com.example.flourish.ui.screens.chart.ChartScreen
@@ -35,6 +36,7 @@ import org.koin.androidx.compose.koinViewModel
 fun NavGraph(
     navController: NavHostController,
     userPreferences: UserPreferences,
+    userRepository: UserRepository,
     modifier: Modifier = Modifier
 ) {
     // Stato per il userId, inizializzato con un valore di default
@@ -43,7 +45,18 @@ fun NavGraph(
     // Effetto per raccogliere i dati dal flusso userIdFlow
     LaunchedEffect(Unit) {
         userPreferences.userIdFlow.collect { userId ->
-            userIdState.value = userId
+            if (userId != null) {
+                val user = userRepository.getUserById(userId)
+                if (user != null) {
+                    userIdState.value = userId
+                } else {
+                    // Utente non trovato nel database → pulisco DataStore
+                    userPreferences.clearUserSata()
+                    userIdState.value = null
+                }
+            } else {
+                userIdState.value = null
+            }
         }
     }
 

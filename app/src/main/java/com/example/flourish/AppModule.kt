@@ -4,6 +4,7 @@ import androidx.room.Room
 import com.example.flourish.data.database.AppDatabase
 import com.example.flourish.data.preferences.UserPreferences
 import com.example.flourish.data.repository.MoodRatingRepository
+import com.example.flourish.data.repository.PlantRepository
 import com.example.flourish.data.repository.SleepRatingRepository
 import com.example.flourish.data.repository.UserActivityRepository
 import com.example.flourish.data.repository.UserRepository
@@ -35,23 +36,25 @@ val appModule = module {
     single { get<AppDatabase>().userActivityDao() }
     single { get<AppDatabase>().sleepRatingDao() }
     single { get<AppDatabase>().moodRatingDao()}
+    single { get<AppDatabase>().plantDao()}
 
     // Repository
     single { UserRepository(get()) }
     single { UserActivityRepository(get()) }
     single { SleepRatingRepository(get()) }
     single { MoodRatingRepository(get()) }
+    single { PlantRepository(get()) }
 
     //UserPreferences
     single { UserPreferences(get()) }
 
     //ViewModel
-    viewModel { LoginViewModel(get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { SignupViewModel(get()) }
     viewModel { ProfileViewModel(get(), get()) }
     viewModel { ActivityDialogViewModel(get(), get()) }
     viewModel { SleepRatingViewModel(get(), get()) }
     viewModel { MoodRatingViewModel(get(), get()) }
     viewModel { ChartViewModel(get(), get(), get(), get()) }
-    viewModel { HomepageViewModel(get(), get()) }
+    viewModel { HomepageViewModel(get(), get(), get()) }
 }
