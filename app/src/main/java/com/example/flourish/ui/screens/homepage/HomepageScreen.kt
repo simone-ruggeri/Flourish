@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -23,6 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -81,61 +86,11 @@ fun HomepageScreen(
     val plantHealth by viewModel.plantHealth.collectAsState()
     val showTransition by viewModel.showTransition.collectAsState()
 
-    val plantDrawable = plantDrawables[plantStage to plantHealth] ?: R.drawable.plant_v_1_healthy
-    val transitionLottieFile = transitionAnimations[plantStage]
+    val prevStage = remember { mutableIntStateOf(plantStage) }
 
-    LaunchedEffect(Unit) {
-        viewModel.setPlantStage(0)
-        viewModel.setPlantHealth("healthy")
-        delay(2000)
-        viewModel.setPlantHealth("struggling")
-        delay(2000)
-        viewModel.setPlantHealth("wilted")
-        delay(2000)
-        viewModel.setShowTransition(true)
-        delay(2000)
-        viewModel.setShowTransition(false)
-
-        viewModel.setPlantStage(1)
-        viewModel.setPlantHealth("healthy")
-        delay(2000)
-        viewModel.setPlantHealth("struggling")
-        delay(2000)
-        viewModel.setPlantHealth("wilted")
-        delay(2000)
-        viewModel.setShowTransition(true)
-        delay(2000)
-        viewModel.setShowTransition(false)
-
-        viewModel.setPlantStage(2)
-        viewModel.setPlantHealth("healthy")
-        delay(2000)
-        viewModel.setPlantHealth("struggling")
-        delay(2000)
-        viewModel.setPlantHealth("wilted")
-        delay(2000)
-        viewModel.setShowTransition(true)
-        delay(2000)
-        viewModel.setShowTransition(false)
-
-        viewModel.setPlantStage(3)
-        viewModel.setPlantHealth("healthy")
-        delay(2000)
-        viewModel.setPlantHealth("struggling")
-        delay(2000)
-        viewModel.setPlantHealth("wilted")
-        delay(2000)
-        viewModel.setShowTransition(true)
-        delay(2000)
-        viewModel.setShowTransition(false)
-
-        viewModel.setPlantStage(4)
-        viewModel.setPlantHealth("healthy")
-        delay(2000)
-        viewModel.setPlantHealth("struggling")
-        delay(2000)
-        viewModel.setPlantHealth("wilted")
-    }
+//    LaunchedEffect(Unit) {
+//        viewModel.showTransitions()
+//    }
 
     LazyColumn(
         modifier = Modifier
@@ -166,16 +121,24 @@ fun HomepageScreen(
                     .height(476.dp), // punto fisso dove sta la pianta
                 contentAlignment = Alignment.BottomCenter
             ) {
-                if (showTransition && transitionLottieFile != null) {
-                    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(transitionLottieFile))
+                if (showTransition) {
+                    val animRes = transitionAnimations[prevStage.intValue]
+                        ?: error("No animation for stage ${prevStage.intValue}")
+                    val composition by rememberLottieComposition(
+                        LottieCompositionSpec.RawRes(animRes)
+                    )
                     LottieAnimation(
                         composition = composition,
                         iterations = 1,
                         modifier = Modifier.height(plantSize)
                     )
                 } else {
+                    prevStage.intValue = plantStage
                     Image(
-                        painter = painterResource(id = plantDrawable),
+                        painter = painterResource(
+                            id = plantDrawables[plantStage to plantHealth]
+                            ?: R.drawable.plant_v_1_healthy
+                        ),
                         contentDescription = "Current plant stage",
                         modifier = Modifier
                             .height(plantSize)
@@ -196,6 +159,26 @@ fun HomepageScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
         }
+
+//        item {
+//            Spacer(modifier = Modifier.height(24.dp))
+//            Text(
+//                text = "DEBUG",
+//                style = MaterialTheme.typography.titleMedium,
+//                color = Color.Red,
+//                textAlign = TextAlign.Center
+//            )
+//            Spacer(modifier = Modifier.height(8.dp))
+//            Button(onClick = {
+//                viewModel.simulateWeeklyWaterDrops(55)
+//                viewModel.simulateLastUpdatedWeek("2025-W28")
+//                viewModel.handleWeeklyPlantUpdate()
+//            }) {
+//                Text("Simula 55 Drops e Cambio Settimana")
+//            }
+//            Spacer(modifier = Modifier.height(8.dp))
+//        }
+
 
         item {
             Spacer(modifier = Modifier.height(16.dp))

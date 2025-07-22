@@ -11,18 +11,26 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.WeekFields
 
-class HomepageViewModel (
+class HomepageViewModel(
     private val userPreferences: UserPreferences,
     private val userActivityRepository: UserActivityRepository,
     private val plantRepository: PlantRepository
 ) : ViewModel() {
+
+    private val survivalThreshold = 40
+    private val growthThreshold = 50
+    private var lastStage = 0
+
     private val _userId = MutableStateFlow<Long?>(null)
     val userId = _userId.asStateFlow()
 
@@ -35,47 +43,53 @@ class HomepageViewModel (
     private val _plantHealth = MutableStateFlow("healthy")
     val plantHealth: StateFlow<String> = _plantHealth
 
-    private val survivalThreshold = 40
-    private val growthThreshold = 50
-
     private val _showTransition = MutableStateFlow(false)
     val showTransition: StateFlow<Boolean> = _showTransition
 
-    private var lastStage = 0
-
     init {
+        // 1) Inizializza plantStage da DataStore
         viewModelScope.launch {
-            userPreferences.userIdFlow.collect {
-                _userId.value = it
+            val savedStage = userPreferences.plantStageFlow.firstOrNull() ?: 0
+            _plantStage.value = savedStage
+            lastStage = savedStage
+        }
+
+        // 2) Osserva cambi di stage
+        viewModelScope.launch {
+            userPreferences.plantStageFlow
+                .drop(1) // ignora valore iniziale
+                .collect { newStage ->
+                    if (newStage > lastStage) {
+                        _showTransition.value = true
+                        delay(2000)
+                        _showTransition.value = false
+                    }
+                    _plantStage.value = newStage
+                    lastStage = newStage
+                }
+        }
+
+        // 3) Osserva cambi di health
+        viewModelScope.launch {
+            userPreferences.plantHealthFlow.collect { health ->
+                _plantHealth.value = health
+            }
+        }
+
+        // 4) Reagisci a userId
+        viewModelScope.launch {
+            userPreferences.userIdFlow.collect { id ->
+                _userId.value = id
                 loadWeeklyWaterDrops()
-                observePlantStage()
-                loadPlantStatus()
+                handleWeeklyPlantUpdate()
             }
         }
     }
 
-    private fun getCurrentWeekRange(): Pair<String, String> {
-        val today = LocalDate.now()
-        val startOfWeek = today.with(DayOfWeek.MONDAY)
-        val endOfWeek = today.with(DayOfWeek.SUNDAY)
-
-        val formatter = DateTimeFormatter.ISO_DATE
-        return Pair(startOfWeek.format(formatter), endOfWeek.format(formatter))
-    }
-
-    private fun loadWeeklyWaterDrops() {
-        val (startDate, endDate) = getCurrentWeekRange()
-
-        viewModelScope.launch {
-            val id = _userId.value ?: return@launch
-            val total = userActivityRepository.getWeeklyWaterDrops(id, startDate, endDate)
-            _weeklyWaterDrops.value = total
-            updateDailyHealth()
-        }
-    }
+    // PLANT STATUS
 
     val plantStatus: StateFlow<String> = weeklyWaterDrops.map { drops ->
-        val today = LocalDate.now().dayOfWeek.value // 1 = Monday, 7 = Sunday
+        val today = LocalDate.now().dayOfWeek.value
         val dailyTarget = survivalThreshold / 7.0
         val expectedProgress = dailyTarget * today
 
@@ -88,14 +102,13 @@ class HomepageViewModel (
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, "Loading plant status...")
 
-    private fun loadPlantStatus() {
+    private fun loadWeeklyWaterDrops() {
+        val (startDate, endDate) = getCurrentWeekRange()
         viewModelScope.launch {
-            userPreferences.plantStageFlow.collect {
-                _plantStage.value = it
-            }
-            userPreferences.plantHealthFlow.collect {
-                _plantHealth.value = it
-            }
+            val id = _userId.value ?: return@launch
+            val total = userActivityRepository.getWeeklyWaterDrops(id, startDate, endDate)
+            _weeklyWaterDrops.value = total
+            updateDailyHealth()
         }
     }
 
@@ -114,51 +127,150 @@ class HomepageViewModel (
             userPreferences.savePlantHealth(health)
             _plantHealth.value = health
             val user = userId.value ?: return@launch
-            plantRepository.insertOrUpdatePlant(user, plantStage.value, plantHealth.value)
+            plantRepository.insertOrUpdatePlant(user, plantStage.value, health)
         }
     }
 
-    fun updateWeeklyStage() {
-        val drops = weeklyWaterDrops.value
+    // WEEKLY STAGE UPDATE
+
+     fun handleWeeklyPlantUpdate() {
+        viewModelScope.launch {
+            val lastUpdatedWeek = getLastUpdatedWeek()
+            val previousWeek = getPreviousWeekIdentifier()
+
+            if (lastUpdatedWeek != previousWeek) {
+                updatePlantStageForPreviousWeek()
+                userPreferences.saveWeekUpdated(previousWeek)
+            }
+        }
+    }
+
+    private suspend fun getLastUpdatedWeek(): String? {
+        return userPreferences.weekUpdatedFlow.firstOrNull()
+    }
+
+    private fun getPreviousWeekIdentifier(): String {
+        val previousWeekDate = LocalDate.now().minusWeeks(1)
+        val week = previousWeekDate.get(WeekFields.ISO.weekOfWeekBasedYear())
+        val year = previousWeekDate.year
+        return "$year-W$week"
+    }
+
+    private fun getPreviousWeekDateRange(): Pair<String, String> {
+        val previousMonday = LocalDate.now().minusWeeks(1).with(DayOfWeek.MONDAY)
+        val previousSunday = LocalDate.now().minusWeeks(1).with(DayOfWeek.SUNDAY)
+        val formatter = DateTimeFormatter.ISO_DATE
+        return Pair(previousMonday.format(formatter), previousSunday.format(formatter))
+    }
+
+    private fun updatePlantStageForPreviousWeek() {
+        val (startDate, endDate) = getPreviousWeekDateRange()
+        viewModelScope.launch {
+            val user = userId.value ?: return@launch
+            val drops = _weeklyWaterDrops.value //userActivityRepository.getWeeklyWaterDrops(user, startDate, endDate)
+            if (shouldGrowPlant(drops)) {
+                incrementPlantStage(user)
+            }
+        }
+    }
+
+    private fun shouldGrowPlant(drops: Int): Boolean {
         val currentStage = plantStage.value
         val maxStage = plantDrawables.keys.maxOfOrNull { it.first } ?: 4
-
-        if (drops >= growthThreshold && currentStage < maxStage) {
-            val newStage = currentStage + 1
-            viewModelScope.launch {
-                val user = userId.value ?: return@launch
-                userPreferences.savePlantStage(newStage)
-                _plantStage.value = newStage
-                plantRepository.insertOrUpdatePlant(user, newStage, plantHealth.value)
-            }
-        }
+        return drops >= growthThreshold && currentStage < maxStage
     }
 
-    private fun observePlantStage() {
-        viewModelScope.launch {
-            userPreferences.plantStageFlow.collect { stage ->
-                if (stage > lastStage) {
-                    _showTransition.value = true
-                    delay(2000) // Tempo della transizione (es. 2 secondi)
-                    _showTransition.value = false
-                }
-                _plantStage.value = stage
-                lastStage = stage
-            }
-        }
+    private suspend fun incrementPlantStage(user: Long) {
+        val newStage = plantStage.value + 1
+        userPreferences.savePlantStage(newStage)
+        _plantStage.value = newStage
+        plantRepository.insertOrUpdatePlant(user, newStage, plantHealth.value)
     }
 
-    fun setShowTransition(value: Boolean) {
+    // UTILITY
+
+    private fun getCurrentWeekRange(): Pair<String, String> {
+        val today = LocalDate.now()
+        val startOfWeek = today.with(DayOfWeek.MONDAY)
+        val endOfWeek = today.with(DayOfWeek.SUNDAY)
+        val formatter = DateTimeFormatter.ISO_DATE
+        return Pair(startOfWeek.format(formatter), endOfWeek.format(formatter))
+    }
+
+    // DEBUG
+    private fun setShowTransition(value: Boolean) {
         _showTransition.value = value
     }
 
-    fun setPlantStage(stage: Int) {
+    private fun setPlantStage(stage: Int) {
         _plantStage.value = stage
     }
 
-    fun setPlantHealth(health: String) {
+    private fun setPlantHealth(health: String) {
         _plantHealth.value = health
     }
 
+    suspend fun showTransitions() {
+        setPlantStage(0)
+        setPlantHealth("healthy")
+        delay(2000)
+        setPlantHealth("struggling")
+        delay(2000)
+        setPlantHealth("wilted")
+        delay(2000)
+        setShowTransition(true)
+        delay(2000)
+        setShowTransition(false)
+
+        setPlantStage(1)
+        setPlantHealth("healthy")
+        delay(2000)
+        setPlantHealth("struggling")
+        delay(2000)
+        setPlantHealth("wilted")
+        delay(2000)
+        setShowTransition(true)
+        delay(2000)
+        setShowTransition(false)
+
+        setPlantStage(2)
+        setPlantHealth("healthy")
+        delay(2000)
+        setPlantHealth("struggling")
+        delay(2000)
+        setPlantHealth("wilted")
+        delay(2000)
+        setShowTransition(true)
+        delay(2000)
+        setShowTransition(false)
+
+        setPlantStage(3)
+        setPlantHealth("healthy")
+        delay(2000)
+        setPlantHealth("struggling")
+        delay(2000)
+        setPlantHealth("wilted")
+        delay(2000)
+        setShowTransition(true)
+        delay(2000)
+        setShowTransition(false)
+
+        setPlantStage(4)
+        setPlantHealth("healthy")
+        delay(2000)
+        setPlantHealth("struggling")
+        delay(2000)
+        setPlantHealth("wilted")
+    }
+
+    fun simulateWeeklyWaterDrops(drops: Int) {
+        _weeklyWaterDrops.value = drops
+    }
+
+    fun simulateLastUpdatedWeek(weekIdentifier: String) {
+        viewModelScope.launch {
+            userPreferences.saveWeekUpdated(weekIdentifier)
+        }
+    }
 
 }

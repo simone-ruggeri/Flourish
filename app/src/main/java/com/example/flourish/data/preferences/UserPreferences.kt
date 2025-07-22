@@ -17,11 +17,21 @@ class UserPreferences(private val context: Context) {
         val USER_ID_KEY = longPreferencesKey("user_id")
         val PLANT_STAGE_KEY = intPreferencesKey("plant_stage")
         val PLANT_HEALTH_KEY = stringPreferencesKey("plant_health")
+        val WEEK_UPDATED_KEY = stringPreferencesKey("week_updated")
     }
 
     // Recupera lo userId come Flow
     val userIdFlow: Flow<Long?> = context.dataStore.data
         .map { preferences -> preferences[USER_ID_KEY] }
+
+    val plantStageFlow: Flow<Int> = context.dataStore.data
+        .map { preferences -> preferences[PLANT_STAGE_KEY] ?: 0 }
+
+    val plantHealthFlow: Flow<String> = context.dataStore.data
+        .map { preferences -> preferences[PLANT_HEALTH_KEY] ?: "healthy" }
+
+    val weekUpdatedFlow: Flow<String?> = context.dataStore.data
+        .map { preferences -> preferences[WEEK_UPDATED_KEY] }
 
     // Salva lo userId
     suspend fun saveUserId(userId: Long) {
@@ -36,14 +46,9 @@ class UserPreferences(private val context: Context) {
             preferences.remove(USER_ID_KEY)
             preferences.remove(PLANT_STAGE_KEY)
             preferences.remove(PLANT_HEALTH_KEY)
+            preferences.remove(WEEK_UPDATED_KEY)
         }
     }
-
-    val plantStageFlow: Flow<Int> = context.dataStore.data
-        .map { preferences -> preferences[PLANT_STAGE_KEY] ?: 0 }
-
-    val plantHealthFlow: Flow<String> = context.dataStore.data
-        .map { preferences -> preferences[PLANT_HEALTH_KEY] ?: "healthy" }
 
     suspend fun savePlantStage(stage: Int) {
         context.dataStore.edit { preferences ->
@@ -54,6 +59,12 @@ class UserPreferences(private val context: Context) {
     suspend fun savePlantHealth(health: String) {
         context.dataStore.edit { preferences ->
             preferences[PLANT_HEALTH_KEY] = health
+        }
+    }
+
+    suspend fun saveWeekUpdated(week: String) {
+        context.dataStore.edit { preferences ->
+            preferences[WEEK_UPDATED_KEY] = week
         }
     }
 }
