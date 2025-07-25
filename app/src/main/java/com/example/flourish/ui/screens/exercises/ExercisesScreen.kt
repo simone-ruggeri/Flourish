@@ -61,13 +61,13 @@ fun ExercisesScreen(
                 onClick = { navController.navigate(NavigationRoute.Breathing.route) }
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            ExerciseCard(
-                iconActivity = R.drawable.exercises_meditation,
-                activityName = "Meditation",
-                onClick = { navController.navigate(NavigationRoute.Meditation.route) }
-            )
+//            Spacer(modifier = Modifier.height(32.dp))
+//
+//            ExerciseCard(
+//                iconActivity = R.drawable.exercises_meditation,
+//                activityName = "Meditation",
+//                onClick = { navController.navigate(NavigationRoute.Meditation.route) }
+//            )
         }
     }
 }

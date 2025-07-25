@@ -132,13 +132,12 @@ fun ProfileScreen(
                 painter = if (user.profileImageUri.isNotBlank()) {
                     rememberAsyncImagePainter(user.profileImageUri)
                 } else {
-                    painterResource(id = R.drawable.profile_picture_default)
+                    painterResource(id = R.drawable.profile_picture_default_color)
                 },
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(140.dp)
-                    .clip(CircleShape)
-                    .border(4.dp, Color.White, CircleShape),
+                    .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
             IconButton(

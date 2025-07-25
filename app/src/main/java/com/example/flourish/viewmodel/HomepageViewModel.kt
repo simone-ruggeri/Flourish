@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.time.temporal.WeekFields
 
 class HomepageViewModel(
@@ -30,6 +31,7 @@ class HomepageViewModel(
     private val survivalThreshold = 40
     private val growthThreshold = 50
     private var lastStage = 0
+    private var firstUseDate: LocalDate? = null
 
     private val _userId = MutableStateFlow<Long?>(null)
     val userId = _userId.asStateFlow()
@@ -47,36 +49,42 @@ class HomepageViewModel(
     val showTransition: StateFlow<Boolean> = _showTransition
 
     init {
-        // 1) Inizializza plantStage da DataStore
         viewModelScope.launch {
+            // 1) Carica o salva la data di prima apertura
+            val savedDate = userPreferences.firstUseDateFlow.firstOrNull()
+            if (savedDate == null) {
+                val today = LocalDate.now()
+                userPreferences.saveFirstUseDate(today)
+                firstUseDate = today
+            } else {
+                firstUseDate = savedDate
+            }
+
+            // 2) Inizializza plantStage da DataStore
             val savedStage = userPreferences.plantStageFlow.firstOrNull() ?: 0
             _plantStage.value = savedStage
             lastStage = savedStage
-        }
 
-        // 2) Osserva cambi di stage
-        viewModelScope.launch {
-            userPreferences.plantStageFlow
-                .drop(1) // ignora valore iniziale
-                .collect { newStage ->
-                    if (newStage > lastStage) {
-                        _showTransition.value = true
-                        delay(2000)
-                        _showTransition.value = false
-                    }
-                    _plantStage.value = newStage
-                    lastStage = newStage
-                }
-        }
-
-        // 3) Osserva cambi di health
-        viewModelScope.launch {
+            // 3) Inizializza health da DataStore
             userPreferences.plantHealthFlow.collect { health ->
                 _plantHealth.value = health
             }
         }
 
-        // 4) Reagisci a userId
+        // 4) Osserva cambi di stage per animazioni
+        viewModelScope.launch {
+            userPreferences.plantStageFlow.drop(1).collect { newStage ->
+                if (newStage > lastStage) {
+                    _showTransition.value = true
+                    delay(2000)
+                    _showTransition.value = false
+                }
+                _plantStage.value = newStage
+                lastStage = newStage
+            }
+        }
+
+        // 5) Osserva userId per caricare dati e gestire settimana
         viewModelScope.launch {
             userPreferences.userIdFlow.collect { id ->
                 _userId.value = id
@@ -89,9 +97,9 @@ class HomepageViewModel(
     // PLANT STATUS
 
     val plantStatus: StateFlow<String> = weeklyWaterDrops.map { drops ->
-        val today = LocalDate.now().dayOfWeek.value
+        val days = getEffectiveDayCount()
         val dailyTarget = survivalThreshold / 7.0
-        val expectedProgress = dailyTarget * today
+        val expectedProgress = dailyTarget * days
 
         when {
             drops >= growthThreshold -> "Your plant is thriving and growing!"
@@ -114,8 +122,8 @@ class HomepageViewModel(
 
     private fun updateDailyHealth() {
         val drops = weeklyWaterDrops.value
-        val today = LocalDate.now().dayOfWeek.value
-        val expectedProgress = (survivalThreshold / 7.0) * today
+        val days = getEffectiveDayCount()
+        val expectedProgress = (survivalThreshold / 7.0) * days
 
         val health = when {
             drops >= expectedProgress -> "healthy"
@@ -133,10 +141,11 @@ class HomepageViewModel(
 
     // WEEKLY STAGE UPDATE
 
-     fun handleWeeklyPlantUpdate() {
+    // Gestione cambio settimana e crescita della pianta
+    fun handleWeeklyPlantUpdate() {
         viewModelScope.launch {
-            val lastUpdatedWeek = getLastUpdatedWeek()
-            val previousWeek = getPreviousWeekIdentifier()
+            val lastUpdatedWeek = userPreferences.weekUpdatedFlow.firstOrNull()
+            val previousWeek     = getPreviousWeekIdentifier()
 
             if (lastUpdatedWeek != previousWeek) {
                 updatePlantStageForPreviousWeek()
@@ -145,9 +154,19 @@ class HomepageViewModel(
         }
     }
 
-    private suspend fun getLastUpdatedWeek(): String? {
-        return userPreferences.weekUpdatedFlow.firstOrNull()
+    private fun getEffectiveDayCount(): Int {
+        val today = LocalDate.now()
+        val monday = today.with(DayOfWeek.MONDAY)
+        return if (firstUseDate != null && firstUseDate!!.isAfter(monday)) {
+            ChronoUnit.DAYS.between(firstUseDate, today).toInt() + 1
+        } else {
+            today.dayOfWeek.value
+        }
     }
+
+//    private suspend fun getLastUpdatedWeek(): String? {
+//        return userPreferences.weekUpdatedFlow.firstOrNull()
+//    }
 
     private fun getPreviousWeekIdentifier(): String {
         val previousWeekDate = LocalDate.now().minusWeeks(1)
