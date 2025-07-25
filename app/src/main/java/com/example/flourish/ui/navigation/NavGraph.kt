@@ -23,6 +23,7 @@ import com.example.flourish.ui.screens.profile.ProfileScreen
 import com.example.flourish.ui.screens.signup.SignupScreen
 import com.example.flourish.ui.screens.sleep.SleepScreen
 import com.example.flourish.viewmodel.ActivityDialogViewModel
+import com.example.flourish.viewmodel.BreathingViewModel
 import com.example.flourish.viewmodel.ChartViewModel
 import com.example.flourish.viewmodel.HomepageViewModel
 import com.example.flourish.viewmodel.LoginViewModel
@@ -124,7 +125,11 @@ fun NavGraph(
             )
         }
         composable(NavigationRoute.Breathing.route) {
-            BreathingScreen()
+            val breathingViewModel: BreathingViewModel = koinViewModel()
+            BreathingScreen(
+                viewModel = breathingViewModel,
+                navController = navController
+            )
         }
         composable(NavigationRoute.Meditation.route) {
             MeditationScreen()
